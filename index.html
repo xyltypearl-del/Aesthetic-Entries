@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>美学卡片 · flomo 式网状联想</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/style.css">
+<style>
+:root{
+ /* Claude 气质：暖米白底 + 赤陶橙强调 + 深暖灰文字 */
+ --bg:#F5F4EF;--paper:#FFFFFF;--ink:#2B2A27;--muted:#7C786E;--line:#E6E2D8;
+ --accent:#C15F3C;--accent-2:#D97757;--accent-soft:#F9EFE8;--shadow:0 1px 2px rgba(60,45,30,.04),0 5px 16px rgba(60,45,30,.05);
+ --font-en:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+ --font-serif:'Lora',serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter','LXGW WenKai',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.65;font-size:14px}
+.wrap{max-width:1480px;margin:0 auto;padding:28px 24px 70px}
+header h1{font-family:var(--font-serif),'LXGW WenKai',serif;font-size:27px;margin:0 0 6px;font-weight:600;letter-spacing:.2px}
+header p{margin:0;color:var(--muted);font-size:13px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:22px 0 16px}
+input,select{font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;outline:none}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(193,95,60,.12)}
+input.search{width:260px}
+button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:9px 14px;cursor:pointer}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.count{margin-left:auto;font-size:12px;color:var(--muted)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:18px;align-items:start}
+.left{min-width:0}
+.view{display:none}.view.on{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:15px;cursor:pointer;box-shadow:var(--shadow);transition:.15s}
+.card:hover{transform:translateY(-2px);border-color:#d9c5b5}
+.card.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(193,95,60,.13)}
+.card h3{margin:0;font-size:15px;font-weight:650;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.card h3 small{font-size:12px;color:var(--muted);font-weight:400}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}
+.chip{font-size:10px;color:#9c5739;background:var(--accent-soft);border-radius:20px;padding:2px 8px;cursor:pointer}
+.chip.fam{color:#fff;background:var(--fc,#888)}
+.thumb{width:100%;height:112px;object-fit:cover;border-radius:10px;background:#ece9df;display:block;margin-bottom:10px}
+.def{font-size:13px;color:#514e46;margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:11px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.graph-shell{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+svg{display:block;width:100%;height:660px;cursor:grab}
+svg:active{cursor:grabbing}
+.edge{stroke:#ddd9cf;stroke-width:1.2;opacity:.8}
+.edge.hi{stroke:var(--accent);stroke-width:2.4;opacity:1}
+.node{cursor:pointer}
+.node circle{stroke:#fff;stroke-width:1.8}
+.node text{font-size:10px;fill:#3a3833;pointer-events:none;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.node.sel circle{stroke:var(--ink);stroke-width:3}
+.node.dim{opacity:.16}
+.node.hi circle{stroke:var(--accent);stroke-width:2.6}
+.side{position:sticky;top:22px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);max-height:calc(100vh - 44px);overflow:auto}
+.side h2{font-family:var(--font-serif),'LXGW WenKai',serif;font-size:18px;margin:0 0 3px}
+.side .sub{font-size:11px;color:var(--muted);margin-bottom:12px}
+.side img{width:100%;height:140px;object-fit:cover;border-radius:10px;background:#ece9df}
+.side p{font-size:13px;margin:10px 0}
+.side .label{font-size:11px;color:var(--muted);letter-spacing:.4px;margin:14px 0 4px}
+.rel{display:flex;flex-wrap:wrap;gap:6px}
+.rel button{font-size:11px;padding:5px 9px;border-radius:18px}
+.hint{color:var(--muted);font-size:13px}
+@media(max-width:1000px){.main{grid-template-columns:1fr}.side{position:static;max-height:none}}
+
+/* ===== 纠错编辑层 ===== */
+button.edit-on{background:var(--accent);border-color:var(--accent);color:#fff}
+#editBanner{display:none;margin:0 0 14px;padding:10px 14px;background:var(--accent-soft);border:1px solid #e8c9b8;color:#9c5739;border-radius:12px;font-size:12px}
+#editBanner.on{display:block}
+.edit-panel{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+.edit-panel textarea{width:100%;font-size:12px;padding:8px 10px;margin-top:4px;min-height:58px;resize:vertical;line-height:1.5}
+.edit-panel .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.edit-panel .row button{font-size:12px;padding:7px 11px}
+.edit-panel .row a{font-size:11px;color:var(--accent);text-decoration:underline}
+.diff-tag{font-size:10px;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 6px;margin-left:6px}
+/* 多图轮播 */
+.carousel-main{position:relative;width:100%;height:150px;border-radius:10px;overflow:hidden;background:#ece9df}
+.side .carousel-main img{width:100%;height:100%;object-fit:cover;display:block;border-radius:0}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:18px;line-height:28px;text-align:center;cursor:pointer;z-index:2;padding:0}
+.carousel-btn:hover{background:rgba(0,0,0,.72)}
+.carousel-btn.prev{left:8px}.carousel-btn.next{right:8px}
+.carousel-cap{position:absolute;bottom:0;left:0;right:0;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;font-size:10px;pointer-events:none}
+.carousel-dots{display:flex;gap:6px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.carousel-dot{width:8px;height:8px;border-radius:50%;border:0;background:#ccc;cursor:pointer;padding:0}
+.carousel-dot.on{background:var(--accent);transform:scale(1.25)}
+.carousel-count{text-align:center;font-size:11px;color:var(--muted);margin-top:5px}
+.thumb-wrap{position:relative}
+.img-badge{position:absolute;right:8px;bottom:18px;background:rgba(0,0,0,.62);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px}
+/* 多图编辑 */
+.img-edit-row{border:1px solid var(--line);border-radius:10px;padding:9px;margin-top:8px;background:#fdfcf9}
+.img-edit-row .img-no{font-size:11px;color:var(--muted)}
+.img-edit-row .erow{display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.img-edit-row input{flex:1;min-width:0;font-size:12px;padding:7px 9px;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.img-edit-row .erow input{margin-top:0}
+.img-edit-row .paste-btn,.img-edit-row .del-btn{font-size:11px;padding:6px 9px;flex:none}
+.img-edit-row .del-btn{color:#b91c1c;border-color:#fecaca}
+.add-img{margin-top:8px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <h1>美学卡片 · flomo 式网状联想</h1>
+ <p>94 张知识卡片 · 点击卡片看「相关笔记」· 关系图可拖动节点 · 随机漫步会把你带到相邻概念</p>
+</header>
+<div class="toolbar">
+ <input id="q" class="search" placeholder="搜索名称 / 定义 / 关键词">
+ <select id="family"><option value="">全部一级标签</option></select>
+ <select id="tag2"><option value="">全部二级标签</option></select>
+ <button id="btnCards" class="active">卡片流</button>
+ <button id="btnGraph">关系图</button>
+ <button id="btnWalk">随机漫步</button>
+ <button id="btnReset">重置</button>
+ <button id="btnEditMode" title="开启后可在右侧直接改图片与文字">✎ 纠错模式</button>
+ <button id="btnExport" title="把所有修正导出为 overrides.json">导出修正</button>
+ <button id="btnImport" title="载入 overrides.json">导入修正</button>
+ <input type="file" id="fileImport" accept=".json,application/json" style="display:none">
+ <span class="count" id="count"></span>
+</div>
+<div id="editBanner">✎ 纠错模式已开启：点任意卡片，在右侧改图片（可加多张、点「📋 粘贴」或按 Ctrl+V 贴链接）后保存。改动先存在本机；点「导出修正」生成 overrides.json，放进本目录或提交 GitHub，所有人打开都会自动应用。</div>
+<div class="main">
+ <section class="left">
+  <div id="cardsView" class="view on"><div class="cards" id="cards"></div></div>
+  <div id="graphView" class="view"><div class="graph-shell"><svg id="graph" viewBox="0 0 1000 700" role="img" aria-label="美学概念网状关系图"></svg></div></div>
+ </section>
+ <aside class="side" id="side"><p class="hint">点一张卡片开始。右侧会像 flomo 的「相关笔记」一样，按共享标签与血缘关系推荐相邻卡片。</p></aside>
+</div>
+</div>
+<script>
+const DATA = {"entries": [{"id": "y2k", "name": "Y2K", "cn": "千禧美学", "family": "千禧科技", "era": "2000s", "mood": "乐观", "def": "世纪交替之际对未来的甜美想象：科技是玩具，身体是可穿戴的塑料梦境。商业化 Y2K 以浅色为主——银、冰蓝、糖果粉，而非黑底霓虹。", "tags": ["铬金属", "透明塑料", "果冻质感", "蝴蝶", "低腰牛仔", "乐观", "湿润"], "tags2": ["数字原生", "时尚穿搭"], "judge": "Y2K 是「干的和金属的」——这是它和 Frutiger Aero 最硬的分界线。商业化 Y2K 以浅色为主：银、冰蓝、白、奶油色。黑底霓虹是赛博朋克，不是 Y2K。", "relation": "1960s 太空时代 → Y2K → 2020s 回潮；Y2K 的加速主义版本是 Y3K", "img": "https://images.pexels.com/photos/13058125/pexels-photo-13058125.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "多彩玻璃光泽（Y2K镭射感）", "degree": 5, "related": ["Y3K", "Scenecore", "Fairycore", "Kidcore", "Frutiger Aero", "Atompunk"]}, {"id": "y3k", "name": "Y3K", "cn": "公元三千纪", "family": "千禧科技", "era": "2020s", "mood": "冷感", "def": "不是对千禧年的致敬，而是对公元 3000 年的幻想。AI、元宇宙、VR 加入后，Y2K 的甜腻被剥离，换成冷冽金属与超现实结构。", "tags": ["液态金属", "反光面料", "3D 打印", "PVC/TPU", "酸性色", "冷感", "AI"], "tags2": ["数字原生", "时尚穿搭"], "judge": "Y3K 明确剥离了 Y2K 的甜腻。配色从数字屏幕与深空取色：荧光粉、科技蓝、酸柠绿、电光紫，以科技黑/碳素灰/宇宙银为底。", "relation": "Y2K 的加速主义版本；与赛博朋克共享冷感，但更重「幻想」而非「反乌托邦」", "img": "https://images.pexels.com/photos/32200384/pexels-photo-32200384.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "未来全息机甲战士", "degree": 2, "related": ["Y2K", "Frutiger Aero", "Precision Mechanism", "Cybercore", "Egirlcore", "Scenecore"]}, {"id": "frutiger-aero", "name": "Frutiger Aero", "cn": "自然科技乐观", "family": "千禧科技", "era": "2000s", "mood": "乐观", "def": "「湿的和绿的」科技乐观主义：Windows XP 草地、Vista 玻璃、气泡与水滴。它把技术当成朋友，而不是异物。", "tags": ["湿光泽", "玻璃透明", "水滴气泡", "拟物图标", "humanist 字体", "乐观"], "tags2": ["数字原生", "时尚穿搭"], "judge": "", "relation": "Y2K 之后的「清洁自然科技」；当代后裔是 Glassmorphism 与 Liquid Glass", "img": "https://images.pexels.com/photos/10082927/pexels-photo-10082927.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "霓虹灯下的雕塑（光泽感）", "degree": 2, "related": ["Nightcore", "Glassmorphism", "Y2K", "Y3K", "Cybercore", "Egirlcore"]}, {"id": "vaporwave", "name": "Vaporwave", "cn": "蒸汽波", "family": "复古未来", "era": "2010s", "mood": "反讽", "def": "对消费主义乌托邦的慢速哀悼。大理石胸像、Windows 95 界面、日文装饰、VHS 故障——用旧界面把「曾经的未来」变成一场梦。", "tags": ["粉紫青渐变", "大理石胸像", "棕榈树", "日文/片假名", "VHS 故障", "慢速", "反讽"], "tags2": ["复古科技", "怀旧年代"], "judge": "Vaporwave 的核心是「ironic（反讽）」；Synthwave 是「sincere（真诚）」。同样用霓虹和复古界面，态度完全相反。", "relation": "→ Mallsoft → Liminal Space（视觉版）；为电子废墟提供了「断代科技」语汇", "img": "https://images.pexels.com/photos/10082927/pexels-photo-10082927.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "霓虹雕像（蒸汽波）", "degree": 3, "related": ["Glitchcore", "Synthwave", "Liminal Space", "Retro-futurism", "Techno-ruin", "Webcore"]}, {"id": "synthwave", "name": "Synthwave", "cn": "合成波", "family": "复古未来", "era": "2010s", "mood": "乐观", "def": "对八十年代不加讽刺的浪漫化：霓虹网格延伸到落日，速度本身就是希望。和蒸汽波最大的区别是——它不反讽。", "tags": ["霓虹网格", "落日", "跑车", "棕榈剪影", "铬字", "黑底高饱和", "速度感"], "tags2": ["复古科技", "怀旧年代"], "judge": "与蒸汽波的分野只有一个词：态度。Synthwave 是真诚的（sincere），蒸汽波是反讽的（ironic）。", "relation": "与蒸汽波同源异态；共享 Retro-futurism 这把大伞", "img": "https://images.pexels.com/photos/39531609/pexels-photo-39531609.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "彩虹3D地形（合成波）", "degree": 1, "related": ["Retro-futurism", "Vaporwave", "Webcore", "Prairiecore", "Blokecore", "Cabincore"]}, {"id": "retro-futurism", "name": "Retro-futurism", "cn": "复古未来主义", "family": "复古未来", "era": "跨年代", "mood": "乐观", "def": "「过去想象的未来」这一整个家族的统称。Y2K、Synthwave、蒸汽波都在这把大伞下，不同的是它们选择的年代与情绪。", "tags": ["太空时代", "复古科幻", "怀旧", "年代想象"], "tags2": ["复古科技", "怀旧年代"], "judge": "", "relation": "伞状概念；涵盖 Atompunk、Synthwave、Y2K 等；Afrofuturism 是其平行分支", "img": "https://images.pexels.com/photos/15166489/pexels-photo-15166489.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "霓虹建筑（复古未来）", "degree": 3, "related": ["Synthwave", "Space Opera", "Steampunk", "Vaporwave", "Webcore", "Blokecore"]}, {"id": "cyberpunk", "name": "Cyberpunk", "cn": "赛博朋克", "family": "暗黑科技", "era": "1990s", "mood": "焦虑", "def": "高科技、低生活。技术高度发达而人性被压扁的世界——霓虹是它的妆，雨水是它的泪。", "tags": ["黑底霓虹", "雨夜", "义体", "片假名/汉字招牌", "摩托", "反乌托邦", "疏离"], "tags2": ["暗黑怪怖", "身体意象"], "judge": "黑底 + 高饱和霓虹是赛博朋克的铁律。如果看到的是浅色、果冻质感，那是 Y2K，不是赛博朋克。", "relation": "→ Techwear / Cybercore（服装化）；为 Y3K 提供冷感；Solarpunk 是它的反命题", "img": "https://images.pexels.com/photos/28122495/pexels-photo-28122495.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "霓虹赛博都市", "degree": 4, "related": ["Techwear / Cybercore", "Analog Horror", "Biomechanical", "Cybercore", "Cybernetics", "Neo-Brutalism"]}, {"id": "techwear-cybercore", "name": "Techwear / Cybercore", "cn": "机能赛博", "family": "暗黑科技", "era": "2010s", "mood": "冷感", "def": "把未来穿在身上：口袋、绑带、防水面料、反光条。城市游牧者的实用主义战袍。", "tags": ["多口袋", "绑带", "防水面料", "反光条", "面罩", "战术背心"], "tags2": ["暗黑怪怖", "身体意象"], "judge": "和 Y3K 共享冷感，但 Techwear 更重「实用」，Y3K 更重「幻想」。", "relation": "赛博朋克的服装化分支", "img": "https://images.pexels.com/photos/8107947/pexels-photo-8107947.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "皮夹克机能造型", "degree": 3, "related": ["Cyberpunk", "Analog Horror", "Gorpcore", "Neo-Brutalism", "Soft Robotics", "Pastelgore"]}, {"id": "analog-horror", "name": "Analog Horror", "cn": "模拟恐怖", "family": "暗黑科技", "era": "2010s", "mood": "焦虑", "def": "用旧录像带的质感讲恐怖故事——雪花、磁带失真、被污染的儿童节目。恐怖来自媒介本身，而不是情节。", "tags": ["VHS 雪花", "磁带失真", "时间戳", "民间传说", "低保真", "焦虑"], "tags2": ["暗黑怪怖", "身体意象"], "judge": "与梦核共享「模糊旧影像」的质感，但目标不同：梦核要乡愁，模拟恐怖要恐惧。分界线是「有东西在看着你」。", "relation": "与 Dreamcore / Weirdcore 共享质感，情绪相反", "img": "https://images.pexels.com/photos/15243523/pexels-photo-15243523.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "旧电视堆（模拟质感）", "degree": 1, "related": ["Techwear / Cybercore", "Backrooms", "Cyberpunk", "Neo-Brutalism", "Pastelgore", "Gorecore"]}, {"id": "neo-brutalism", "name": "Neo-Brutalism", "cn": "新粗野主义", "family": "暗黑科技", "era": "2020s", "mood": "冷感", "def": "拒绝圆角和阴影的修饰：暴露结构、粗体字、纯色块。在数字世界里，「丑」成为一种诚实。", "tags": ["粗体字", "高对比", "无圆角", "原始网格", "纯色块", "拒绝修饰"], "tags2": ["暗黑怪怖", "身体意象"], "judge": "", "relation": "Webcore → Neo-Brutalism；与 Glassmorphism 互为反面", "img": "https://images.pexels.com/photos/15166489/pexels-photo-15166489.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "混凝土建筑夜景", "degree": 2, "related": ["Analog Horror", "Brutalism", "Cyberpunk", "Techwear / Cybercore", "Webcore", "Gorecore"]}, {"id": "techno-ruin", "name": "Techno-ruin", "cn": "电子废墟", "family": "电子废墟", "era": "2020s", "mood": "忧郁", "def": "把过时的机器当作遗迹来凝视：CRT 显示器、缠绕的电线、锡箔反光。曾经的未来，成了今天的考古现场。", "tags": ["CRT 显示器", "缠绕电线", "电子元件", "锡箔反光", "屏幕蓝", "氧化绿", "挽歌"], "tags2": ["暗黑怪怖", "家居空间"], "judge": "蒸汽波拿断代科技来反讽，电子废墟拿它来哀悼。前者笑着回望，后者站着默哀。", "relation": "蒸汽波的忧郁分支；与赛博圣母共享「神圣坠入废墟」的构图", "img": "https://images.pexels.com/photos/19037726/pexels-photo-19037726.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "电子垃圾堆（电子废墟）", "degree": 3, "related": ["Cyber Mary", "High-Tech Architecture", "Vaporwave", "Cabincore", "Chillcore", "Clowncore"]}, {"id": "cyber-mary", "name": "Cyber Mary", "cn": "赛博圣母", "family": "电子废墟", "era": "2020s", "mood": "忧郁", "def": "圣像与电子垃圾的强制并置：永恒的神圣住进正在过时的技术，看到的不是亵渎，是信仰在数字时代的流亡。", "tags": ["圣像", "CRT", "超现实并置", "锡箔", "科技宗教", "诗性"], "tags2": ["暗黑怪怖", "家居空间"], "judge": "为什么是圣母？因为圣母在传统里是「承载神圣的容器」，而技术正是这个时代新的容器：我们把记忆、判断、信任都托付给了它。", "relation": "电子废墟的宗教分支；与「圣像人偶」构成一对：一个做成收藏品，一个丢进废墟", "img": "https://images.pexels.com/photos/19037726/pexels-photo-19037726.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "电子垃圾堆（电子废墟）", "degree": 1, "related": ["Techno-ruin", "Cabincore", "Chillcore", "Clowncore", "Cottagecore", "Crowcore"]}, {"id": "glassmorphism", "name": "Glassmorphism", "cn": "玻璃拟态", "family": "新科技风", "era": "2020s", "mood": "冷感", "def": "柔和粉彩渐变 + 磨砂模糊玻璃面板：平静、通透、无重力。当代大厂 UI 的默认语气。", "tags": ["磨砂玻璃", "柔和渐变", "半透明", "平静", "通透"], "tags2": ["数字原生", "功能性"], "judge": "", "relation": "Frutiger Aero → Glassmorphism → Liquid Glass", "img": "https://images.pexels.com/photos/13058125/pexels-photo-13058125.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "彩色玻璃光泽（玻璃拟态）", "degree": 2, "related": ["Liquid Glass", "Frutiger Aero", "AI 生成美学", "Backrooms", "Corecore", "Cutecore"]}, {"id": "liquid-glass", "name": "Liquid Glass", "cn": "液态玻璃", "family": "新科技风", "era": "2020s", "mood": "冷感", "def": "被内容着色的折射玻璃：UI 不再是容器，而是会流动、会折射的活体表面。", "tags": ["折射", "半透明", "流体", "内容着色", "抛光"], "tags2": ["数字原生", "功能性"], "judge": "", "relation": "Glassmorphism 的直接继承者", "img": "https://images.pexels.com/photos/13058125/pexels-photo-13058125.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "彩色玻璃光泽（玻璃拟态）", "degree": 1, "related": ["Glassmorphism", "AI 生成美学", "Backrooms", "Corecore", "Cutecore", "Cybercore"]}, {"id": "ai", "name": "AI 生成美学", "cn": "生成式梦境", "family": "新科技风", "era": "2020s", "mood": "忧郁", "def": "生成式 AI 的视觉无意识：过度平滑、逻辑自洽却细节错误，像一场没有作者的梦。", "tags": ["漫射光", "超现实融合", "过度平滑", "无来源", "梦境逻辑"], "tags2": ["数字原生", "功能性"], "judge": "", "relation": "Dreamcore 的技术驱动版本", "img": "https://images.pexels.com/photos/15588865/pexels-photo-15588865.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "朦胧墙面文字（梦核）", "degree": 0, "related": ["Glassmorphism", "Liquid Glass", "Backrooms", "Corecore", "Cutecore", "Cybercore"]}, {"id": "dreamcore", "name": "Dreamcore", "cn": "梦核", "family": "梦核怪核", "era": "2020s", "mood": "忧郁", "def": "柔和、超现实、半记得的梦：褪色的照片、奇怪的光、说不清的熟悉感。", "tags": ["朦胧粉彩", "褪色照片", "怪异光线", "说不清的熟悉"], "tags2": ["情绪氛围", "数字原生"], "judge": "", "relation": "→ Weirdcore（焦虑版）→ Liminal Space（场景化）", "img": "https://images.pexels.com/photos/15588865/pexels-photo-15588865.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "朦胧墙面文字（梦核）", "degree": 4, "related": ["Weirdcore", "Corecore", "Voidcore", "Backrooms", "Kidcore", "Liminal Space"]}, {"id": "weirdcore", "name": "Weirdcore", "cn": "怪核", "family": "梦核怪核", "era": "2020s", "mood": "焦虑", "def": "梦核的焦虑版本：饱和、噪点、刻意的不适感。同样的梦，开始破碎。", "tags": ["噪点", "失真", "过饱和", "不安", "怪异文字"], "tags2": ["情绪氛围", "数字原生"], "judge": "", "relation": "Dreamcore 的焦虑版本", "img": "https://images.pexels.com/photos/15243523/pexels-photo-15243523.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "旧电视堆（模拟质感）", "degree": 2, "related": ["Dreamcore", "Backrooms", "Liminal Space", "Clowncore", "Corecore", "Cutecore"]}, {"id": "liminal-space", "name": "Liminal Space", "cn": "阈限空间", "family": "梦核怪核", "era": "2020s", "mood": "忧郁", "def": "熟悉场所被抽空的样子：空商场、无人走廊、深夜泳池。过渡本身成了目的地。", "tags": ["空旷", "荧光灯", "黄滤镜", "重复结构", "无人", "不安"], "tags2": ["情绪氛围", "数字原生"], "judge": "", "relation": "Vaporwave → Mallsoft → Liminal Space → Backrooms", "img": "https://images.pexels.com/photos/10175091/pexels-photo-10175091.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "夜间城市空廊（阈限）", "degree": 3, "related": ["Backrooms", "Weirdcore", "Dreamcore", "Prairiecore", "Vaporwave", "Corecore"]}, {"id": "solarpunk", "name": "Solarpunk", "cn": "太阳朋克", "family": "生态未来", "era": "2010s", "mood": "乐观", "def": "赛博朋克的反命题：未来不必阴暗。植物爬上建筑，太阳能与手工艺共存，是绿色的、社区的、温柔的乌托邦。", "tags": ["藤蔓建筑", "太阳能", "社区花园", "手工艺", "柔和光", "希望"], "tags2": ["植物自然", "自然水景"], "judge": "", "relation": "赛博朋克的反命题", "img": "https://images.pexels.com/photos/313782/pexels-photo-313782.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "绿植与自然（生态）", "degree": 1, "related": ["Afrofuturism", "Bloomcore", "Cabincore", "Chillcore", "Goblincore", "Honeycore"]}, {"id": "afrofuturism", "name": "Afrofuturism", "cn": "非洲未来主义", "family": "生态未来", "era": "跨年代", "mood": "乐观", "def": "用非洲文化与美学重新想象未来：传统纹样与航天科技并置，既是对未来的幻想，也是对历史的重写。", "tags": ["传统纹样", "航天科技", "身份", "历史重写"], "tags2": ["植物自然", "自然水景"], "judge": "", "relation": "Retro-futurism 的平行分支，以文化身份为轴", "img": "https://images.pexels.com/photos/12746779/pexels-photo-12746779.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "多彩撞色造型", "degree": 1, "related": ["Solarpunk", "Bloomcore", "Cabincore", "Chillcore", "Goblincore", "Honeycore"]}, {"id": "steampunk", "name": "Steampunk", "cn": "蒸汽朋克", "family": "机械未来", "era": "跨年代", "mood": "乐观", "def": "用蒸汽机、黄铜齿轮与维多利亚服装想象「如果未来是蒸汽驱动的」——机械外露、可触摸、带手工艺温度。", "tags": ["黄铜", "齿轮", "铆钉", "蒸汽", "维多利亚", "手工感"], "tags2": ["功能性", "职业符号"], "judge": "蒸汽朋克的机械是外露的、可修理的；赛博朋克的机械是植入身体、不可拆的。", "relation": "Retro-futurism → Steampunk → Dieselpunk / Atompunk", "img": "https://images.pexels.com/photos/3785934/pexels-photo-3785934.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "黄铜齿轮与旧机械", "degree": 2, "related": ["Precision Mechanism", "Dieselpunk", "Atompunk", "Biomechanical", "Mecha", "Retro-futurism"]}, {"id": "dieselpunk", "name": "Dieselpunk", "cn": "柴油朋克", "family": "机械未来", "era": "跨年代", "mood": "焦虑", "def": "以 1920–50 年代柴油机械、战时工业与装饰艺术为底色的硬朗未来想象：装甲、铆接钢板、复古飞行器。", "tags": ["柴油", "装甲", "铆钉", "战时工业", "Art Deco", "沉重"], "tags2": ["功能性", "职业符号"], "judge": "与蒸汽朋克的分界线是「动力」：蒸汽 vs 柴油。柴油朋克更军事化、更都市，也更压抑。", "relation": "Retro-futurism → Dieselpunk；与 Cyberpunk 共享反乌托邦情绪", "img": "https://images.pexels.com/photos/30335402/pexels-photo-30335402.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "老工厂里的复古机械", "degree": 0, "related": ["Steampunk", "Atompunk", "Biomechanical", "Mecha", "Precision Mechanism", "Bionics"]}, {"id": "atompunk", "name": "Atompunk", "cn": "原子朋克", "family": "机械未来", "era": "跨年代", "mood": "乐观", "def": "冷战初期对原子能与太空时代的明亮想象：飞碟、尾翼汽车、原子图标、玻璃与铬的家电。", "tags": ["原子图标", "尾翼汽车", "太空时代", "铬", "明亮", "家电"], "tags2": ["功能性", "职业符号"], "judge": "与 Y2K 共享乐观，但 Atompunk 的科技是「大机器与家电」，Y2K 是「小玩具与穿戴物」。", "relation": "1960s 太空时代 → Atompunk → Y2K", "img": "https://images.pexels.com/photos/34262959/pexels-photo-34262959.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "粉色尾翼老爷车与棕榈树", "degree": 1, "related": ["Biomechanical", "Dieselpunk", "Mecha", "Precision Mechanism", "Steampunk", "Y2K"]}, {"id": "biomechanical", "name": "Biomechanical", "cn": "生物机械", "family": "机械未来", "era": "跨年代", "mood": "焦虑", "def": "肉体与机械的边界被缝在一起：血管与管线、骨骼与活塞共用一套语法。Giger 式的有机机械，美与不适并存。", "tags": ["有机机械", "管线", "骨骼", "异形", "恐怖谷", "融合"], "tags2": ["功能性", "职业符号"], "judge": "赛博朋克的「义体」仍是装上去的零件；Biomechanical 强调机械像生物一样生长出来。", "relation": "Cyberpunk → Biomechanical ↔ Mecha（一柔一硬）", "img": "https://images.pexels.com/photos/7688549/pexels-photo-7688549.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "赛博格与机械面孔", "degree": 3, "related": ["Mecha", "Bionics", "Atompunk", "Dieselpunk", "Precision Mechanism", "Steampunk"]}, {"id": "mecha", "name": "Mecha", "cn": "机甲机械", "family": "机械未来", "era": "跨年代", "mood": "冷感", "def": "以巨大人形机械为中心的视觉：装甲板、液压关节、驾驶舱与尺度感。它把机械的力量拟人化，而不是把人机械化。", "tags": ["装甲板", "液压", "驾驶舱", "巨大尺度", "工业设计"], "tags2": ["功能性", "职业符号"], "judge": "与生物机械恰好相反：机甲是硬边、外骨骼、非生命；生物机械是软硬同体、像在生长。", "relation": "Industrial Design → Mecha；Mecha ↔ Biomechanical", "img": "https://images.pexels.com/photos/38559815/pexels-photo-38559815.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "机甲与机器人", "degree": 1, "related": ["Biomechanical", "Atompunk", "Dieselpunk", "Precision Mechanism", "Steampunk", "Bionics"]}, {"id": "precision-mechanism", "name": "Precision Mechanism", "cn": "精密机械风", "family": "机械未来", "era": "跨年代", "mood": "冷感", "def": "齿轮咬合、CNC 倒角、透明外壳下的精密结构——看得见的精密本身就是美。中文语境里常叫机械风或机能机械。", "tags": ["齿轮", "透明外壳", "CNC", "倒角", "模块化", "秩序"], "tags2": ["功能性", "职业符号"], "judge": "它不讲故事，只展示结构。和蒸汽朋克的区别是「工程」而非「怀旧」；和电子废墟的区别是「运转」而非「报废」。", "relation": "Steampunk → Precision Mechanism → Y3K", "img": "https://images.pexels.com/photos/8327684/pexels-photo-8327684.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "钟表齿轮机构", "degree": 3, "related": ["Steampunk", "Industrial Design", "Atompunk", "Biomechanical", "Dieselpunk", "Mecha"]}, {"id": "webcore", "name": "Webcore", "cn": "早期网页", "family": "复古未来", "era": "1990s", "mood": "反讽", "def": "对个人网站黄金时代的怀旧：访客计数器、施工中 GIF、平铺背景、Comic Sans。它怀旧的对象是互联网还很小的时候。", "tags": ["像素字体", "计数器", "平铺背景", "原色", "手工 HTML"], "tags2": ["复古科技", "怀旧年代"], "judge": "Webcore 怀的是「网页的粗糙」，Frutiger Aero 怀的是「系统的圆润」——同为旧界面，情绪相反。", "relation": "Webcore → Neo-Brutalism；Webcore → Vaporwave（界面素材）", "img": "https://images.pexels.com/photos/7598913/pexels-photo-7598913.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "旧电脑设备", "degree": 2, "related": ["Nostalgiacore", "Neo-Brutalism", "Retro-futurism", "Synthwave", "Vaporwave", "Blokecore"]}, {"id": "cottagecore", "name": "Cottagecore", "cn": "田园风", "family": "日常Core", "era": "2020s", "mood": "温暖", "def": "对乡村生活的浪漫想象：野花、烘焙、旧布、慢节奏。它把逃离城市变成可穿搭、可拍照的生活方式。", "tags": ["碎花", "野餐", "手工", "慢生活", "复古布料"], "tags2": ["家居空间", "时尚穿搭"], "judge": "与 fairycore 的区别：田园风是「在地上过日子」，精灵风是「在林中施法」。", "relation": "Cottagecore → Fairycore / Dollcore", "img": "https://images.pexels.com/photos/29748902/pexels-photo-29748902.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "田园风穿搭与野花", "degree": 6, "related": ["Dollcore", "Fairycore", "Grandmacore", "Chillcore", "Bloomcore", "Goblincore"]}, {"id": "fairycore", "name": "Fairycore", "cn": "精灵风", "family": "日常Core", "era": "2020s", "mood": "温暖", "def": "薄纱、珠光、森林与蘑菇的幻想美学——把精灵当成一种可以穿戴的身份。", "tags": ["薄纱", "珠光", "蘑菇", "森林", "湿润光泽"], "tags2": ["家居空间", "时尚穿搭"], "judge": "和 Y2K 共享「湿润的光泽」，但 fairycore 的光来自自然幻想，Y2K 的光来自塑料玩具。", "relation": "Cottagecore → Fairycore ↔ Y2K（湿润光泽）", "img": "https://images.pexels.com/photos/13424896/pexels-photo-13424896.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "花丛中的轻盈造型", "degree": 6, "related": ["Cottagecore", "Princesscore", "Y2K", "Mermaidcore", "Angelcore", "Dollcore"]}, {"id": "dollcore", "name": "Dollcore", "cn": "娃娃风", "family": "日常Core", "era": "2020s", "mood": "温暖", "def": "把真人妆扮成瓷娃娃：高位置圆腮红、假雀斑、手绘式眼影与卷发。重点不是骗过眼睛，而是坦白我被打扮过。", "tags": ["瓷肌", "圆腮红", "假雀斑", "卷发", "蝴蝶结"], "tags2": ["家居空间", "时尚穿搭"], "judge": "BJD 是人偶模仿人；Dollcore 是活人模仿人。方向恰好相反。", "relation": "Cottagecore → Dollcore → Porcelain Doll（冷藏版）", "img": "https://images.pexels.com/photos/38600832/pexels-photo-38600832.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "复古瓷娃娃", "degree": 2, "related": ["Cottagecore", "Barbiecore", "Fairycore", "Kidcore", "Dark Academia", "Coquettecore"]}, {"id": "dark-academia", "name": "Dark Academia", "cn": "暗黑学院", "family": "日常Core", "era": "2010s", "mood": "忧郁", "def": "对古典学院与旧书房的致意：粗花呢、旧书、哥特建筑、咖啡与手写笔记。知识被想象成一种带着霉味的风度。", "tags": ["粗花呢", "旧书", "哥特建筑", "咖啡", "手写笔记"], "tags2": ["家居空间", "时尚穿搭"], "judge": "与 Light Academia 的区别在光线与情绪：暗黑学院更阴郁、更文学化。", "relation": "Romanticism → Dark Academia ↔ Cottagecore", "img": "https://images.pexels.com/photos/10626502/pexels-photo-10626502.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "旧图书馆书架", "degree": 2, "related": ["Wizardcore", "Cottagecore", "Dollcore", "Fairycore", "Kidcore", "Nerdcore"]}, {"id": "kidcore", "name": "Kidcore", "cn": "童核", "family": "日常Core", "era": "2020s", "mood": "乐观", "def": "把童年物件重新穿在身上：亮色塑料、卡通贴纸、彩色发夹、玩具感配饰。它是拒绝长大的亮色版本。", "tags": ["高饱和", "卡通", "塑料玩具", "贴纸", "童趣"], "tags2": ["家居空间", "时尚穿搭"], "judge": "与 Y2K 共享塑料感，但 Kidcore 借的是儿童用品，Y2K 借的是未来科技。", "relation": "Y2K → Kidcore ↔ Dreamcore（明与暗）", "img": "https://images.pexels.com/photos/6743161/pexels-photo-6743161.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "彩色玩具", "degree": 6, "related": ["Y2K", "Cutecore", "Rainbowcore", "Babycored", "Clowncore", "Cottagecore"]}, {"id": "backrooms", "name": "Backrooms", "cn": "后室", "family": "梦核怪核", "era": "2020s", "mood": "焦虑", "def": "空旷、黄色荧光灯、潮湿地毯的无限走廊——都市传说被视觉化后，成了过渡空间的极端形态。", "tags": ["黄色荧光灯", "潮湿地毯", "空房间", "无限循环", "不安"], "tags2": ["情绪氛围", "数字原生"], "judge": "Liminal Space 是「熟悉场所被抽空」，Backrooms 是「抽空之后变成了怪物」。", "relation": "Liminal Space → Backrooms → Analog Horror", "img": "https://images.pexels.com/photos/25913153/pexels-photo-25913153.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "空旷走廊", "degree": 2, "related": ["Liminal Space", "Weirdcore", "Dreamcore", "Analog Horror", "Corecore", "Cutecore"]}, {"id": "brutalism", "name": "Brutalism", "cn": "粗野主义建筑", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "让混凝土保持混凝土的样子：裸露的模板痕迹、巨大的体量、拒绝任何装饰——诚实到粗糙。", "tags": ["清水混凝土", "体量感", "反装饰", "结构即外观", "纪念性"], "tags2": ["功能性", "极简"], "judge": "与 Neo-Brutalism 同名不同物：一个是屏幕界面的粗糙，一个是建筑材料的粗糙。前者是风格态度，后者是施工事实。", "relation": "Modernism → Brutalism → Neo-Brutalism（数字版，情绪相反）", "img": "https://images.pexels.com/photos/2793444/pexels-photo-2793444.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "混凝土粗野主义建筑", "degree": 2, "related": ["High-Tech Architecture", "Bionics", "Cybernetics", "Greeble", "Hard Sci-Fi", "Industrial Design"]}, {"id": "high-tech-architecture", "name": "High-Tech Architecture", "cn": "高技派建筑", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "把管道、钢架、电梯全部翻到建筑外面，还刷上颜色——让机器如何运转变成建筑的外观。", "tags": ["外露结构", "彩色管道", "功能可视化", "模块化", "工业预制"], "tags2": ["功能性", "极简"], "judge": "和粗野主义都「不隐藏结构」，但粗野主义藏起的是装饰，高技派展示的是运作。混凝土是沉默的，管道是会流动的。", "relation": "Brutalism → High-Tech Architecture → Techno-ruin", "img": "https://images.pexels.com/photos/3137047/pexels-photo-3137047.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "钢结构与玻璃幕墙", "degree": 2, "related": ["Brutalism", "Bionics", "Cybernetics", "Greeble", "Hard Sci-Fi", "Industrial Design"]}, {"id": "industrial-design", "name": "Industrial Design", "cn": "工业设计风", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "形式追随功能：美不来自装饰，而来自一个零件为什么长成这样——可被制造、可被拆解、可被量产。", "tags": ["形式追随功能", "包豪斯", "标准件", "少即是多", "可量产"], "tags2": ["功能性", "极简"], "judge": "和 Precision Mechanism 的区别：都讲结构，但精密机械风是「看得见的精密」，工业设计风是「看得见的合理」——后者不需要复杂，只需要对。", "relation": "Bauhaus → Industrial Design → Precision Mechanism", "img": "https://images.pexels.com/photos/7504599/pexels-photo-7504599.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "工业设计感的产品与材质", "degree": 3, "related": ["Greeble", "Hard Sci-Fi", "Precision Mechanism", "Bionics", "Brutalism", "Cybernetics"]}, {"id": "greeble", "name": "Greeble", "cn": "密集细节", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "在巨大表面上堆满功能性的小零件——舷窗、散热片、管线接口。细节让人相信这艘船真的能飞。", "tags": ["细节密度", "尺度暗示", "可信度", "模块化重复", "表面纹理"], "tags2": ["功能性", "极简"], "judge": "和 Cottagecore 的手工细节相反：田园风细节是「有人在这里生活过」，Greeble 细节是「有工程师计算过」。", "relation": "Industrial Design → Greeble → Space Opera / Hard Sci-Fi", "img": "https://images.pexels.com/photos/39229005/pexels-photo-39229005.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "密集齿轮与机械细节", "degree": 3, "related": ["Hard Sci-Fi", "Industrial Design", "Space Opera", "Bionics", "Brutalism", "Cybernetics"]}, {"id": "bionics", "name": "Bionics", "cn": "仿生机械", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "向生命借工程方案：鸟的骨架、鲨鱼的皮、猎豹的肌腱，被翻译成金属与算法——模仿自然，是为了做得更好。", "tags": ["仿生", "外骨骼", "结构效率", "义肢", "生物力学"], "tags2": ["功能性", "极简"], "judge": "和 Biomechanical 恰好相反：生物机械是「肉与机器缝在一起」的恐怖幻想，仿生机械是「向自然学工程」的理性实践。一个让人不适，一个让人安心。", "relation": "Cybernetics → Bionics ↔ Biomechanical（理性与梦魇）", "img": "https://images.pexels.com/photos/6153076/pexels-photo-6153076.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "仿生义肢与机械手", "degree": 3, "related": ["Cybernetics", "Soft Robotics", "Biomechanical", "Brutalism", "Greeble", "Hard Sci-Fi"]}, {"id": "soft-robotics", "name": "Soft Robotics", "cn": "软体机器人", "family": "工业硬核", "era": "2020s", "mood": "乐观", "def": "用硅胶、织物和气动代替钢与齿轮——机械第一次变得可以弯曲、可以贴肤、可以安全地碰一个鸡蛋。", "tags": ["柔性材料", "气动", "仿生运动", "人机安全", "可穿戴"], "tags2": ["功能性", "极简"], "judge": "它是「机械硬核」里唯一柔软的一支：结构依然理性，但材料从钢铁换成硅胶。和 Techwear 的区别是——一个穿在身上是衣服，一个是身体的一部分。", "relation": "Bionics → Soft Robotics ↔ Techwear", "img": "https://images.pexels.com/photos/8386369/pexels-photo-8386369.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "机械手与柔性结构", "degree": 2, "related": ["Bionics", "Brutalism", "Cybernetics", "Greeble", "Hard Sci-Fi", "High-Tech Architecture"]}, {"id": "space-opera", "name": "Space Opera", "cn": "太空歌剧", "family": "工业硬核", "era": "跨年代", "mood": "乐观", "def": "把宇宙当成舞台而非实验室：星舰、帝国、异星文明与宏大命运——尺度感压倒细节的准确性。", "tags": ["宏大叙事", "星舰", "异星文明", "史诗感", "浪漫主义"], "tags2": ["功能性", "极简"], "judge": "和 Hard Sci-Fi 是光谱两端：太空歌剧问「这个故事有多大」，硬科幻问「这台引擎怎么工作」。前者可以超光速，后者不行。", "relation": "Retro-futurism → Space Opera ↔ Hard Sci-Fi", "img": "https://images.pexels.com/photos/4233216/pexels-photo-4233216.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "红蓝色星云", "degree": 3, "related": ["Greeble", "Hard Sci-Fi", "Bionics", "Brutalism", "Cybernetics", "High-Tech Architecture"]}, {"id": "hard-sci-fi", "name": "Hard Sci-Fi", "cn": "硬科幻", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "以科学可行性为最高约束的想象：轨道力学、材料极限、推进方式都要算得通——美感来自它真的可能。", "tags": ["科学严谨", "工程可信", "物理约束", "真实材料", "代价意识"], "tags2": ["功能性", "极简"], "judge": "和 Space Opera 共享宇宙，但一个把物理当规则，一个把物理当背景板。和 Techno-ruin 也相反：一个相信工程能带我们走远，一个展示工程失败后的残骸。", "relation": "Industrial Design → Hard Sci-Fi ↔ Space Opera；Greeble → Hard Sci-Fi", "img": "https://images.pexels.com/photos/256297/pexels-photo-256297.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "火箭引擎与推进结构", "degree": 3, "related": ["Greeble", "Industrial Design", "Space Opera", "Bionics", "Brutalism", "Cybernetics"]}, {"id": "cybernetics", "name": "Cybernetics", "cn": "控制论美学", "family": "工业硬核", "era": "跨年代", "mood": "冷感", "def": "研究反馈、通信与控制的学科，也长成一种视觉：框图、回路、伺服机构、人机之间流动的信号。", "tags": ["反馈", "回路", "控制", "人机共生", "信息流"], "tags2": ["功能性", "极简"], "judge": "它是赛博朋克的理论祖先：控制论关心「系统如何自我调节」，赛博朋克关心「系统如何支配人」。一个冷静，一个愤怒。", "relation": "Cybernetics → Cyberpunk（暗黑化）/ Bionics（肉身化）", "img": "https://images.pexels.com/photos/3913025/pexels-photo-3913025.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "机械义肢与技术结构", "degree": 2, "related": ["Bionics", "Brutalism", "Greeble", "Hard Sci-Fi", "High-Tech Architecture", "Industrial Design"]}, {"id": "goblincore", "name": "Goblincore", "cn": "地精核", "family": "田园自然核", "era": "2020s", "mood": "温暖", "def": "崇拜泥土、苔藓、蘑菇与旧铜币的美学：美不在干净，而在潮湿、杂乱、被自然重新占领的角落。", "tags": ["苔藓", "蘑菇", "青蛙", "旧铜器", "泥土", "收集癖"], "tags2": ["植物自然", "动物", "民俗幻想"], "judge": "和 Cottagecore 共享自然，但田园风是「打理好的花园」，地精核是「没人打理的湿地」——一个精致，一个野蛮。", "relation": "Cottagecore → Goblincore（自然观从秩序转向野生）", "img": "https://images.pexels.com/photos/20698187/pexels-photo-20698187.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "森林中的蘑菇与苔藓", "degree": 3, "related": ["Mosscore", "Mushroomcore", "Cottagecore", "Crowcore", "Bloomcore", "Cabincore"]}, {"id": "cabincore", "name": "Cabincore", "cn": "木屋核", "family": "田园自然核", "era": "2020s", "mood": "温暖", "def": "森林深处的木屋生活：原木、壁炉、格纹毯、热可可。它是 Cottagecore 的北方版本，更冷、更安静、更独处。", "tags": ["原木", "壁炉", "格纹", "毛毯", "森林", "独处"], "tags2": ["植物自然", "家居空间", "怀旧年代"], "judge": "和 Cottagecore 的区别在气候：田园风是阳光下的野餐，木屋核是雪夜里的炉火。", "relation": "Cottagecore → Cabincore → Dark Academia（越往室内，越往阴郁）", "img": "https://images.pexels.com/photos/10560268/pexels-photo-10560268.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "壁炉与木屋内景", "degree": 0, "related": ["Grandmacore", "Prairiecore", "Bloomcore", "Goblincore", "Honeycore", "Mosscore"]}, {"id": "mosscore", "name": "Mosscore", "cn": "苔藓核", "family": "田园自然核", "era": "2020s", "mood": "忧郁", "def": "以苔藓的绿色与湿润质感为核心：石阶、树根、废墟表面那层缓慢生长的绿。时间在这里是可见的。", "tags": ["苔藓", "湿绿", "石头", "树根", "缓慢", "时间痕迹"], "tags2": ["植物自然", "民俗幻想"], "judge": "比 Goblincore 更静：地精核有角色和收集欲，苔藓核几乎无人，只剩材质与光线。", "relation": "Goblincore → Mosscore；与 Techno-ruin 共享「自然接管人造物」", "img": "https://images.pexels.com/photos/18740858/pexels-photo-18740858.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "覆盖岩石的青苔", "degree": 1, "related": ["Goblincore", "Mushroomcore", "Bloomcore", "Cabincore", "Crowcore", "Honeycore"]}, {"id": "mushroomcore", "name": "Mushroomcore", "cn": "蘑菇核", "family": "田园自然核", "era": "2020s", "mood": "温暖", "def": "以蘑菇形态为母题：伞盖、斑点、菌丝网络。它同时是食物、毒物和童话意象——可爱与危险并存。", "tags": ["蘑菇", "菌丝", "斑点", "森林地板", "采集", "童话"], "tags2": ["植物自然", "民俗幻想"], "judge": "和 Fairycore 共享森林，但精灵核借蘑菇做魔法布景，蘑菇核研究蘑菇本身——一个叙事，一个博物学。", "relation": "Goblincore ↔ Fairycore → Mushroomcore", "img": "https://images.pexels.com/photos/20698187/pexels-photo-20698187.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "蘑菇特写", "degree": 1, "related": ["Goblincore", "Mosscore", "Bloomcore", "Cabincore", "Crowcore", "Honeycore"]}, {"id": "pixiecore", "name": "Pixiecore", "cn": "小妖精核", "family": "田园自然核", "era": "2020s", "mood": "乐观", "def": "森林小妖精的穿搭想象：尖耳、花瓣裙、浆果色、赤脚。比 Fairycore 更顽皮、更矮小、更贴近地面。", "tags": ["尖耳", "花瓣", "浆果色", "赤脚", "顽皮", "小尺度"], "tags2": ["植物自然", "神话魔法", "童真"], "judge": "和 Fairycore 的区别是身高与气质：精灵是飘的，小妖精是蹲在地上摘浆果的。", "relation": "Cottagecore → Fairycore → Pixiecore", "img": "https://images.pexels.com/photos/37310238/pexels-photo-37310238.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "花丛与草地", "degree": 1, "related": ["Bloomcore", "Fairycore", "Cabincore", "Goblincore", "Honeycore", "Mosscore"]}, {"id": "bloomcore", "name": "Bloomcore", "cn": "花开核", "family": "田园自然核", "era": "2020s", "mood": "乐观", "def": "以花朵盛放的瞬间为中心：花瓣、花粉、嫩绿与明亮日光。所有的花都在开，没有一朵在凋谢。", "tags": ["花朵", "花粉", "嫩绿", "日光", "盛放", "轻盈"], "tags2": ["植物自然", "童真", "情绪氛围"], "judge": "和 Cottagecore 都爱花，但田园风的花在花瓶和院子里，花开核的花是漫山遍野、没有边界的。", "relation": "Cottagecore → Bloomcore；与 Fairycore 共享柔光", "img": "https://images.pexels.com/photos/37310238/pexels-photo-37310238.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "盛放的花田", "degree": 1, "related": ["Cottagecore", "Honeycore", "Pixiecore", "Babycored", "Cabincore", "Coquettecore"]}, {"id": "prairiecore", "name": "Prairiecore", "cn": "草原核", "family": "田园自然核", "era": "2020s", "mood": "忧郁", "def": "开阔草原与西部拓荒想象：干草、旷野、木屋、落日。它把「空旷」当成一种情绪而非地貌。", "tags": ["干草", "旷野", "落日", "木屋", "孤独", "地平线"], "tags2": ["植物自然", "地域乡土", "怀旧年代"], "judge": "和 Cabincore 都在自然里，但木屋核是围炉的封闭，草原核是地平线的敞开——一个向内，一个向外。", "relation": "Cottagecore → Prairiecore；与 Liminal Space 共享空旷感", "img": "https://images.pexels.com/photos/31958434/pexels-photo-31958434.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "开阔的草原田野", "degree": 1, "related": ["Cabincore", "Liminal Space", "Bloomcore", "Goblincore", "Grandmacore", "Honeycore"]}, {"id": "honeycore", "name": "Honeycore", "cn": "蜜糖核", "family": "田园自然核", "era": "2020s", "mood": "温暖", "def": "以蜂蜜的色泽与黏稠感为基调：金黄、蜂巢、花田、慢速的甜。它把「甜蜜」做成可以触摸的质地。", "tags": ["蜂蜜", "蜂巢", "金黄", "黏稠", "花田", "慢甜"], "tags2": ["食物家务", "情绪氛围", "植物自然"], "judge": "和 Bloomcore 都明亮，但花开核是扩散的、轻的，蜜糖核是收拢的、浓稠的。", "relation": "Cottagecore → Honeycore ↔ Bloomcore", "img": "https://images.pexels.com/photos/20012002/pexels-photo-20012002.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "蜂巢与蜂蜜", "degree": 0, "related": ["Bloomcore", "Cabincore", "Goblincore", "Grandmacore", "Mosscore", "Mushroomcore"]}, {"id": "crowcore", "name": "Crowcore", "cn": "乌鸦核", "family": "田园自然核", "era": "2020s", "mood": "忧郁", "def": "以乌鸦与渡鸦为图腾：黑色羽毛、锐利目光、拾荒者的智慧。它是田园美学里唯一穿黑衣的那支。", "tags": ["乌鸦", "黑羽", "喙", "拾荒", "神秘", "预兆"], "tags2": ["动物", "暗黑怪怖", "民俗幻想"], "judge": "和 Goblincore 都在野外捡东西，但地精核捡的是铜币，乌鸦核捡的是发亮的不祥之物。", "relation": "Goblincore → Crowcore → Cryptidcore", "img": "https://images.pexels.com/photos/18073404/pexels-photo-18073404.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "黑羽乌鸦", "degree": 1, "related": ["Cryptidcore", "Goblincore", "Mosscore", "Mushroomcore", "Bloomcore", "Cabincore"]}, {"id": "grandmacore", "name": "Grandmacore", "cn": "奶奶核", "family": "田园自然核", "era": "2020s", "mood": "温暖", "def": "对祖母家居的温柔复原：碎花墙纸、钩针桌布、饼干盒、旧相册。它怀念的不是年代，而是被照顾的感觉。", "tags": ["钩针", "碎花", "饼干", "旧相册", "手工", "被照顾"], "tags2": ["家居空间", "食物家务", "怀旧年代"], "judge": "和 Dark Academia 都是旧物美学，但学院核把旧物变成知识，奶奶核把旧物变成照料。", "relation": "Cottagecore → Grandmacore；与 Grandmillennial 同源", "img": "https://images.pexels.com/photos/8826936/pexels-photo-8826936.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "钩针与手工家居", "degree": 1, "related": ["Cottagecore", "Cabincore", "Honeycore", "Prairiecore", "Blokecore", "Bloomcore"]}, {"id": "babycored", "name": "Babycored", "cn": "婴儿核", "family": "童真幻想核", "era": "2020s", "mood": "温暖", "def": "把婴儿的视觉语言穿上身：奶白、粉蓝、圆脸、柔软布料与奶瓶饰品。是「拒绝长大」的柔软版本。", "tags": ["奶白", "粉蓝", "圆润", "柔软", "奶瓶", "蹒跚"], "tags2": ["童真", "身体意象", "情绪氛围"], "judge": "和 Kidcore 都拒绝长大，但童核借的是玩具和卡通（亮），婴儿核借的是婴儿用品（柔）。", "relation": "Kidcore → Babycored；与 Dollcore 共享圆润", "img": "https://images.pexels.com/photos/33997860/pexels-photo-33997860.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "粉彩婴儿色调物件", "degree": 1, "related": ["Cutecore", "Kidcore", "Rainbowcore", "Angelcore", "Bloomcore", "Clowncore"]}, {"id": "cutecore", "name": "Cutecore", "cn": "可爱核", "family": "童真幻想核", "era": "2020s", "mood": "乐观", "def": "把「可爱」推到过载：闪亮贴纸、大眼睛表情、粉彩发光字、满屏装饰。它不追求高级，只追求 heart 爆表。", "tags": ["闪亮", "大眼睛", "粉彩", "贴纸", "装饰过载", "卡哇伊"], "tags2": ["童真", "数字原生", "情绪氛围"], "judge": "和 Kidcore 共享高饱和，但童核是怀旧童年物件，可爱核是当代网络的可爱符号——一个是回忆，一个是表情包。", "relation": "Kidcore → Cutecore；与 Sanriocore 共享日系可爱", "img": "https://images.pexels.com/photos/33997860/pexels-photo-33997860.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "可爱粉彩玩偶", "degree": 3, "related": ["Sanriocore", "Lovecore", "Rainbowcore", "Kidcore", "Babycored", "Happytecore"]}, {"id": "sanriocore", "name": "Sanriocore", "cn": "三丽鸥核", "family": "童真幻想核", "era": "2020s", "mood": "乐观", "def": "以三丽鸥角色为视觉语法：Hello Kitty、库洛米、美乐蒂与粉彩笑脸。它把角色 logo 当成一种身份徽章。", "tags": ["Hello Kitty", "库洛米", "粉彩", "角色徽章", "日系", "甜"], "tags2": ["童真", "品牌符号", "数字原生"], "judge": "和 Cutecore 都是可爱过载，但可爱核是泛化的表情符号，三丽鸥核有明确的角色与版权世界。", "relation": "Cutecore → Sanriocore；与 Kidcore 共享童年", "img": "https://images.pexels.com/photos/33997860/pexels-photo-33997860.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "日系可爱角色风", "degree": 1, "related": ["Cutecore", "Rainbowcore", "Babycored", "Barbiecore", "Clowncore", "Happytecore"]}, {"id": "rainbowcore", "name": "Rainbowcore", "cn": "彩虹核", "family": "童真幻想核", "era": "2020s", "mood": "乐观", "def": "以完整光谱为信条：颜色越多越好，拒绝单一主色。彩虹在这里不是自然现象，是抗抑郁的宣言。", "tags": ["彩虹", "全光谱", "高饱和", "拼接", "快乐", "宣言"], "tags2": ["童真", "情绪氛围", "数字原生"], "judge": "和 Kidcore 同样鲜艳，但童核的色彩来自具体玩具，彩虹核的色彩是抽象的、按色环排列的。", "relation": "Kidcore → Rainbowcore；与 Dopaminecore 同源", "img": "https://images.pexels.com/photos/636388/pexels-photo-636388.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "彩虹光谱", "degree": 3, "related": ["Happytecore", "Dopaminecore", "Cutecore", "Kidcore", "Babycored", "Sanriocore"]}, {"id": "angelcore", "name": "Angelcore", "cn": "天使核", "family": "童真幻想核", "era": "2020s", "mood": "温暖", "def": "以天使意象为核心的纯净美学：白纱、羽翼、光环、淡金与柔焦。它模仿的是「被光照亮的那一刻」。", "tags": ["羽翼", "光环", "白纱", "淡金", "柔焦", "纯净"], "tags2": ["神话魔法", "神圣", "情绪氛围"], "judge": "和 Fairycore 都是带翅膀的幻想身份，但精灵在林中，天使在光里——一个湿，一个亮。", "relation": "Fairycore → Angelcore；与 Heavenly / Ethereal 共享光感", "img": "https://images.pexels.com/photos/37834398/pexels-photo-37834398.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "白色天使雕像", "degree": 3, "related": ["Heavenlycore", "Ghostcore", "Fairycore", "Babycored", "Cutecore", "Mermaidcore"]}, {"id": "princesscore", "name": "Princesscore", "cn": "公主核", "family": "童真幻想核", "era": "2020s", "mood": "乐观", "def": "把童话公主当成人设来过：蓬裙、王冠、珍珠、粉色与优雅仪态。它不反讽，认真地相信自己就是公主。", "tags": ["蓬裙", "王冠", "珍珠", "粉色", "仪态", "童话"], "tags2": ["童真", "身份扮演", "时尚穿搭"], "judge": "和 Royalcore 都在扮演皇室，但公主核是迪士尼式的甜与夢，王室核是历史剧式的庄重与权力。", "relation": "Fairycore → Princesscore → Royalcore", "img": "https://images.pexels.com/photos/36073208/pexels-photo-36073208.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "公主裙与王冠", "degree": 3, "related": ["Coquettecore", "Royalcore", "Fairycore", "Clowncore", "Babycored", "Barbiecore"]}, {"id": "royalcore", "name": "Royalcore", "cn": "王室核", "family": "童真幻想核", "era": "2020s", "mood": "冷感", "def": "以欧洲王室与历史剧为蓝本：华服、纹章、深红与金、肖像画式构图。它迷恋的是等级与仪式感。", "tags": ["纹章", "华服", "深红", "黄金", "肖像画", "仪式"], "tags2": ["身份扮演", "时尚穿搭", "怀旧年代"], "judge": "和 Princesscore 同源但气质相反：公主核是甜美幻想，王室核是权力想象——一个被宠爱，一个发号施令。", "relation": "Princesscore → Royalcore ↔ Regencycore", "img": "https://images.pexels.com/photos/36073208/pexels-photo-36073208.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "华服与宫廷感", "degree": 2, "related": ["Princesscore", "Regencycore", "Wizardcore", "Blokecore", "Clowncore", "Witchcore"]}, {"id": "mermaidcore", "name": "Mermaidcore", "cn": "人鱼核", "family": "童真幻想核", "era": "2020s", "mood": "忧郁", "def": "以人鱼为身份想象：珠光鳞片、贝壳、海藻绿、湿润的发与水光妆。它把「陆地上的异类」穿成日常。", "tags": ["鳞片", "贝壳", "海藻绿", "水光", "珠光", "湿润"], "tags2": ["神话魔法", "动物", "自然水景"], "judge": "和 Fairycore 共享珠光与湿润，但精灵的光来自露水与森林，人鱼的光来自海水——一个在林，一个在浪。", "relation": "Fairycore → Mermaidcore；与 Y2K 共享珠光材质", "img": "https://images.pexels.com/photos/12861198/pexels-photo-12861198.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "海洋珠光与贝壳", "degree": 1, "related": ["Fairycore", "Angelcore", "Witchcore", "Wizardcore", "Babycored", "Chillcore"]}, {"id": "wizardcore", "name": "Wizardcore", "cn": "巫师核", "family": "童真幻想核", "era": "2020s", "mood": "忧郁", "def": "以巫师与魔法学院为身份想象：长袍、尖帽、魔杖、旧书与烛光。知识在这里被想象成可以施放的魔法。", "tags": ["长袍", "尖帽", "魔杖", "旧书", "烛光", "咒语"], "tags2": ["神话魔法", "身份扮演", "怀旧年代"], "judge": "和 Dark Academia 都爱旧书与烛光，但学院核的知识是文学的，巫师核的知识是能改变现实的。", "relation": "Dark Academia → Wizardcore；与 Witchcore 是男女装同源分支", "img": "https://images.pexels.com/photos/15247740/pexels-photo-15247740.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "烛光下的旧书", "degree": 2, "related": ["Witchcore", "Dark Academia", "Royalcore", "Angelcore", "Clowncore", "Devilcore"]}, {"id": "witchcore", "name": "Witchcore", "cn": "女巫核", "family": "童真幻想核", "era": "2020s", "mood": "忧郁", "def": "以女巫为身份想象：黑裙、草药、月相、扫帚与水晶。它把「被排斥的聪明女人」重新穿成力量。", "tags": ["黑裙", "草药", "月相", "水晶", "咒语", "力量"], "tags2": ["神话魔法", "身份扮演", "植物自然"], "judge": "和 Wizardcore 同源，但巫师核偏向学院与典籍，女巫核偏向自然与仪式——一个读书，一个采药。", "relation": "Wizardcore ↔ Witchcore；与 Goblincore 共享野外采集", "img": "https://images.pexels.com/photos/16242957/pexels-photo-16242957.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "水晶与神秘符号", "degree": 2, "related": ["Wizardcore", "Devilcore", "Angelcore", "Clowncore", "Mermaidcore", "Pixiecore"]}, {"id": "clowncore", "name": "Clowncore", "cn": "小丑核", "family": "童真幻想核", "era": "2020s", "mood": "反讽", "def": "夸张的条纹、波点、褶边与红鼻子——它把童年的欢乐符号推到诡异的地步，笑着让人不安。", "tags": ["条纹", "波点", "褶边", "红鼻", "夸张", "诡异"], "tags2": ["暗黑怪怖", "身份扮演", "童真"], "judge": "和 Kidcore 都用童年符号，但童核是怀旧，小丑核是反讽——同样的彩色，一个让你笑，一个让你笑不出来。", "relation": "Kidcore → Clowncore；与 Weirdcore 共享不安感", "img": "https://images.pexels.com/photos/30906950/pexels-photo-30906950.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "小丑与马戏色彩", "degree": 2, "related": ["Kidcore", "Princesscore", "Weirdcore", "Babycored", "Cutecore", "Devilcore"]}, {"id": "traumacore", "name": "Traumacore", "cn": "创伤核", "family": "暗黑怪怖核", "era": "2020s", "mood": "忧郁", "def": "用粉彩与可爱符号谈论创伤：创可贴、药丸、哭泣的卡通脸。甜蜜的包装里装着难以直说的痛。", "tags": ["创可贴", "药丸", "粉彩", "哭泣表情", "自伤隐喻", "甜蜜的痛"], "tags2": ["暗黑怪怖", "身体意象", "情绪氛围"], "judge": "和 Pastel Goth 都是粉彩+黑暗，但后者是审美混搭，前者是真的在用可爱谈论心理创伤。", "relation": "Pastel Goth → Traumacore；与 Medicalcore 共享医疗符号", "img": "https://images.pexels.com/photos/4421486/pexels-photo-4421486.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "创可贴与医疗意象", "degree": 2, "related": ["Pastelgore", "Medicalcore", "Ghostcore", "Gorecore", "Voidcore", "Gloomycore"]}, {"id": "gloomycore", "name": "Gloomycore", "cn": "阴郁核", "family": "暗黑怪怖核", "era": "2010s", "mood": "忧郁", "def": "Tumblr 时代的低饱和阴郁：灰蓝滤镜、雨窗、旧照片与凹陷的眼神。它把抑郁本身当成一种视觉调色盘。", "tags": ["灰蓝", "雨窗", "低饱和", "旧照片", "疲惫", "滤镜"], "tags2": ["暗黑怪怖", "情绪氛围", "数字原生"], "judge": "和 Traumacore 都阴郁，但创伤核用粉彩符号说话，阴郁核用褪色照片说话——一个在喊，一个在沉默。", "relation": "Tumblr 2014 → Gloomycore；与 Sadgirl 同源", "img": "https://images.pexels.com/photos/39015528/pexels-photo-39015528.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "阴郁灰暗的氛围", "degree": 1, "related": ["Hatecore", "Voidcore", "Ghostcore", "Traumacore", "Pastelgore", "Backrooms"]}, {"id": "cryptidcore", "name": "Cryptidcore", "cn": "神秘生物核", "family": "暗黑怪怖核", "era": "2020s", "mood": "焦虑", "def": "以未证实生物为母题：大脚怪、尼斯湖水怪、天蛾人。模糊照片与目击报告构成了它全部的美学。", "tags": ["模糊照片", "目击报告", "森林", "脚印", "未证实", "传说"], "tags2": ["暗黑怪怖", "民俗幻想", "地域乡土"], "judge": "和 Crowcore 都有野外神秘感，但乌鸦核的神秘是象征，神秘生物核的神秘是「它可能真的存在」。", "relation": "Crowcore → Cryptidcore；与 Analog Horror 共享媒介恐惧", "img": "https://images.pexels.com/photos/39015528/pexels-photo-39015528.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "雾中的神秘森林", "degree": 1, "related": ["Crowcore", "Devilcore", "Ghostcore", "Gorecore", "Medicalcore", "Traumacore"]}, {"id": "gorecore", "name": "Gorecore", "cn": "血腥核", "family": "暗黑怪怖核", "era": "2020s", "mood": "焦虑", "def": "以血液、伤口与身体内部为视觉素材：红色、湿润、肉体边界被打开。它直面恐怖而非暗示。", "tags": ["血液", "伤口", "红色", "肉体", "直面", "生理"], "tags2": ["暗黑怪怖", "身体意象"], "judge": "和 Medicalcore 都出现医疗/身体意象，但医疗核是临床的、距离化的，血腥核是贴身的、无距离的。", "relation": "Horror → Gorecore；与 Medicalcore 共享身体素材", "img": "https://images.pexels.com/photos/4421486/pexels-photo-4421486.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "手术室与红色医疗意象", "degree": 0, "related": ["Medicalcore", "Traumacore", "Pastelgore", "Cryptidcore", "Devilcore", "Ghostcore"]}, {"id": "medicalcore", "name": "Medicalcore", "cn": "医疗核", "family": "暗黑怪怖核", "era": "2020s", "mood": "冷感", "def": "以医院与医疗器具为美学：白大褂、输液管、病历、消毒水气味与可爱的护士贴纸。它把治疗场所变得既冷静又诡异。", "tags": ["白大褂", "输液管", "病历", "消毒", "器械", "病房"], "tags2": ["身体意象", "暗黑怪怖", "职业符号"], "judge": "和 Gorecore 都在医院里，但医疗核关注的是「系统如何照料身体」，血腥核关注的是「身体如何被破坏」。", "relation": "Cybernetics → Medicalcore；与 Traumacore 共享医疗符号", "img": "https://images.pexels.com/photos/4421486/pexels-photo-4421486.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "医院医疗设备", "degree": 1, "related": ["Traumacore", "Gorecore", "Pastelgore", "Cryptidcore", "Devilcore", "Ghostcore"]}, {"id": "ghostcore", "name": "Ghostcore", "cn": "幽灵核", "family": "暗黑怪怖核", "era": "2020s", "mood": "忧郁", "def": "幽灵、床单鬼、半透明与漂浮感：白纱、灰雾、模糊边缘。它把「不在场」做成一种柔软的视觉。", "tags": ["白纱", "半透明", "灰雾", "漂浮", "床单鬼", "模糊"], "tags2": ["暗黑怪怖", "神话魔法", "情绪氛围"], "judge": "和 Angelcore 都穿白、都飘，但天使是光与救赎，幽灵是雾与未完成——一个让你安心，一个让你心酸。", "relation": "Angelcore → Ghostcore（白纱的光被抽走）；与 Dreamcore 共享模糊", "img": "https://images.pexels.com/photos/39015528/pexels-photo-39015528.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "白雾与幽灵感", "degree": 1, "related": ["Angelcore", "Devilcore", "Traumacore", "Voidcore", "Gloomycore", "Cryptidcore"]}, {"id": "voidcore", "name": "Voidcore", "cn": "虚空核", "family": "暗黑怪怖核", "era": "2020s", "mood": "焦虑", "def": "以绝对的黑暗与空洞为中心：纯黑、深洞、失焦与消失的边界。它减去一切，直到只剩「什么都没有」。", "tags": ["纯黑", "空洞", "失焦", "消失", "无边", "虚无"], "tags2": ["暗黑怪怖", "情绪氛围", "数字原生"], "judge": "和 Gloomycore 都消极，但阴郁核是灰色的、有内容的，虚空核是黑色的、把内容都减掉了。", "relation": "Gloomycore → Voidcore；与 Dreamcore 共享迷失感", "img": "https://images.pexels.com/photos/39015528/pexels-photo-39015528.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "深暗的雾与虚空", "degree": 1, "related": ["Dreamcore", "Gloomycore", "Ghostcore", "Traumacore", "Hatecore", "Backrooms"]}, {"id": "pastelgore", "name": "Pastelgore", "cn": "粉彩血腥核", "family": "暗黑怪怖核", "era": "2010s", "mood": "反讽", "def": "把血腥与可爱放在同一个画面：粉色血迹、创可贴装饰、卡通化的伤口。反差本身就是它的主张。", "tags": ["粉色血迹", "创可贴", "卡通伤口", "甜与痛", "反差", "粉彩"], "tags2": ["暗黑怪怖", "身体意象", "童真"], "judge": "和 Traumacore 都甜中带痛，但创伤核的痛是真的、私人的，粉彩血腥核的痛是风格化的、公开展示的。", "relation": "Pastel Goth → Pastelgore → Traumacore", "img": "https://images.pexels.com/photos/4421486/pexels-photo-4421486.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "柔和色调的医疗意象", "degree": 1, "related": ["Traumacore", "Gorecore", "Medicalcore", "Analog Horror", "Gloomycore", "Techwear / Cybercore"]}, {"id": "devilcore", "name": "Devilcore", "cn": "恶魔核", "family": "暗黑怪怖核", "era": "2020s", "mood": "焦虑", "def": "以恶魔与地狱意象为装扮：角、红黑配色、皮革与逆十字。它把「反叛」做成一套有仪式感的服装。", "tags": ["恶魔角", "红黑", "皮革", "逆十字", "反叛", "仪式"], "tags2": ["暗黑怪怖", "神话魔法", "身份扮演"], "judge": "和 Witchcore 都是被排斥的力量身份，但女巫核是自然的、草药的，恶魔核是锻造的、皮革的。", "relation": "Witchcore → Devilcore；与 Gothcore 共享暗色穿搭", "img": "https://images.pexels.com/photos/30906950/pexels-photo-30906950.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "暗红与戏剧化装扮", "degree": 1, "related": ["Witchcore", "Ghostcore", "Clowncore", "Cryptidcore", "Gorecore", "Medicalcore"]}, {"id": "glitchcore", "name": "Glitchcore", "cn": "故障核", "family": "网络原生核", "era": "2020s", "mood": "焦虑", "def": "以数字错误为美：像素错位、色块撕裂、RGB 分离、加载失败的画面。它把系统的崩溃当成视觉语言。", "tags": ["像素错位", "色块撕裂", "RGB分离", "故障", "加载失败", "数字噪点"], "tags2": ["数字原生", "复古科技", "情绪氛围"], "judge": "和 Vaporwave 都用旧数字界面，但蒸汽波是怀旧地模仿，故障核是让界面真的「坏掉」——一个在怀旧，一个在崩溃。", "relation": "Glitch Art → Glitchcore；与 Vaporwave 共享数字怀旧", "img": "https://images.pexels.com/photos/9505415/pexels-photo-9505415.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "数字故障抽象图像", "degree": 1, "related": ["Vaporwave", "Corecore", "Cybercore", "Nostalgiacore", "Nightcore", "Backrooms"]}, {"id": "scenecore", "name": "Scenecore", "cn": "场景核", "family": "网络原生核", "era": "2020s", "mood": "乐观", "def": "TikTok 时代对 2000 年代 Scene 亚文化的复兴：彩色挑染、豹纹、紧身衣、星星贴纸与电音。带反讽的复古。", "tags": ["彩色挑染", "豹纹", "星星贴纸", "紧身衣", "电音", "Y2K复兴"], "tags2": ["数字原生", "时尚穿搭", "音乐场景"], "judge": "和 Y2K 共享千禧元素，但 Y2K 是未来的乐观想象，场景核是故意土味的反讽扮演。", "relation": "Y2K → Scenecore；与 Emo / Scene 亚文化同源", "img": "https://images.pexels.com/photos/17682731/pexels-photo-17682731.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "鲜艳多彩的街头穿搭", "degree": 2, "related": ["Egirlcore", "Y2K", "Corecore", "Cybercore", "Nightcore", "Gamercore"]}, {"id": "gamercore", "name": "Gamercore", "cn": "游戏核", "family": "网络原生核", "era": "2020s", "mood": "乐观", "def": "把玩家身份穿成日常：像素图案、手柄印花、电竞外套、荧光绿与黑。游戏不再只是娱乐，而是生活方式标签。", "tags": ["像素图案", "手柄", "电竞", "荧光绿", "黑", "玩家身份"], "tags2": ["数字原生", "游戏宅", "身份扮演"], "judge": "和 Nerdcore 都围绕宅文化，但极客核偏向智力与收藏，游戏核偏向屏幕与操作——一个在读书，一个在打怪。", "relation": "Nerdcore → Gamercore；与 Cybercore 共享机能外套", "img": "https://images.pexels.com/photos/7773745/pexels-photo-7773745.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "游戏手柄与霓虹", "degree": 1, "related": ["Nerdcore", "Corecore", "Cybercore", "Glitchcore", "Nostalgiacore", "Scenecore"]}, {"id": "nerdcore", "name": "Nerdcore", "cn": "极客核", "family": "网络原生核", "era": "2020s", "mood": "冷感", "def": "把「书呆子」身份重新穿成骄傲：格子衫、眼镜、漫画印花、收藏柜与数学符号。知识分子的可爱化版本。", "tags": ["格子衫", "眼镜", "漫画", "收藏", "数学符号", "知识分子"], "tags2": ["数字原生", "游戏宅", "身份扮演"], "judge": "和 Dark Academia 都爱知识，但学院核把知识做成古典风度，极客核把知识做成流行文化——一个严肃，一个宅。", "relation": "Dark Academia → Nerdcore → Gamercore", "img": "https://images.pexels.com/photos/15247740/pexels-photo-15247740.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "书卷与眼镜书卷气", "degree": 2, "related": ["Gamercore", "Dark Academia", "Corecore", "Cybercore", "Glitchcore", "Nostalgiacore"]}, {"id": "nightcore", "name": "Nightcore", "cn": "夜核", "family": "网络原生核", "era": "2000s", "mood": "乐观", "def": "把歌曲升调加速后形成的音乐与视觉风格：高音人声、闪亮动漫封面、星空与速度感。它把「快」变成情绪。", "tags": ["升调加速", "高音", "动漫封面", "星空", "速度感", "闪亮"], "tags2": ["数字原生", "音乐场景", "情绪氛围"], "judge": "名字带 core 但本质是音乐类型，不是穿搭风格——这是核类里少数「先有声音再有画面」的一支。", "relation": "电子舞曲 → Nightcore；与 Frutiger Aero 共享千禧光泽", "img": "https://images.pexels.com/photos/4233216/pexels-photo-4233216.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "星空与速度光感", "degree": 1, "related": ["Frutiger Aero", "Corecore", "Glitchcore", "Nostalgiacore", "Scenecore", "Cutecore"]}, {"id": "nostalgiacore", "name": "Nostalgiacore", "cn": "怀旧核", "family": "网络原生核", "era": "2020s", "mood": "忧郁", "def": "对「不久前」的怀念：2000 年代网页、早期手机、旧游戏机截图。它怀念的不是古代，而是自己长大的那段数字时间。", "tags": ["旧网页", "早期手机", "旧游戏机", "截图", "低清", " grown-up 回忆"], "tags2": ["数字原生", "怀旧年代", "情绪氛围"], "judge": "和 Vaporwave 都怀旧，但蒸汽波怀的是 80 年代的商业想象，怀旧核怀的是自己童年的具体物件。", "relation": "Vaporwave → Nostalgiacore；与 Webcore 共享旧界面", "img": "https://images.pexels.com/photos/7598913/pexels-photo-7598913.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "旧电脑与复古设备", "degree": 1, "related": ["Webcore", "Corecore", "Glitchcore", "Nightcore", "Backrooms", "Cutecore"]}, {"id": "corecore", "name": "Corecore", "cn": "元核", "family": "网络原生核", "era": "2020s", "mood": "忧郁", "def": "TikTok 上的一类剪辑：把无关的影像配上情绪化音乐，拼出「当代生活的感受」。它是关于「感觉」本身的元美学。", "tags": ["拼贴剪辑", "无关影像", "配乐", "当代生活", "情绪", "元美学"], "tags2": ["数字原生", "情绪氛围", "音乐场景"], "judge": "它不是一种可穿搭的风格，而是一种剪辑语法——核类家族里最抽象、最难「穿」的一支。", "relation": "TikTok 剪辑文化 → Corecore；与 Dreamcore 共享情绪拼贴", "img": "https://images.pexels.com/photos/9505415/pexels-photo-9505415.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "拼贴式的情绪影像", "degree": 1, "related": ["Dreamcore", "Nightcore", "Glitchcore", "Nostalgiacore", "Scenecore", "Backrooms"]}, {"id": "cybercore", "name": "Cybercore", "cn": "赛博核", "family": "网络原生核", "era": "2020s", "mood": "冷感", "def": "把赛博朋克从电影搬进穿搭：机能背带、护目镜、荧光绑带、透明 PVC。它借用了反乌托邦的造型，却乐观地穿在身上。", "tags": ["机能背带", "护目镜", "荧光绑带", "PVC", "赛博造型", "都市"], "tags2": ["数字原生", "时尚穿搭", "复古科技"], "judge": "和 Cyberpunk 共享视觉，但赛博朋克是批判叙事，赛博核是时尚单品——一个在讲反乌托邦，一个在逛街。", "relation": "Cyberpunk → Cybercore；与 Techwear 高度重叠", "img": "https://images.pexels.com/photos/6153076/pexels-photo-6153076.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "机械义肢与赛博感", "degree": 1, "related": ["Glitchcore", "Scenecore", "Cyberpunk", "Corecore", "Egirlcore", "Gamercore"]}, {"id": "gorpcore", "name": "Gorpcore", "cn": "户外核", "family": "身份风格核", "era": "2020s", "mood": "乐观", "def": "把登山与徒步装备穿进城市：冲锋衣、抓绒、登山靴、大容量背包。功能性从户外变成都市时尚的符号。", "tags": ["冲锋衣", "抓绒", "登山靴", "背包", "功能性", "都市户外"], "tags2": ["时尚穿搭", "户外活动", "功能性"], "judge": "和 Techwear 都讲机能，但-techwear 是全黑、未来感、设计驱动；户外核是亮色、户外品牌、真实登山血统。", "relation": "Techwear → Gorpcore（机能从未来想象回到真实户外）", "img": "https://images.pexels.com/photos/7010110/pexels-photo-7010110.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "登山背包与户外装备", "degree": 2, "related": ["Blokecore", "Techwear / Cybercore", "Barbiecore", "Coquettecore", "Egirlcore", "Regencycore"]}, {"id": "normcore", "name": "Normcore", "cn": "常态核", "family": "身份风格核", "era": "2010s", "mood": "冷感", "def": "刻意穿得毫无个性：普通牛仔裤、白 T 恤、运动鞋。它用「不表达」来表达——在过度人设的时代选择消失。", "tags": ["普通", "白T", "牛仔裤", "运动鞋", "去个性", "低调"], "tags2": ["时尚穿搭", "情绪氛围", "极简"], "judge": "和 Quiet Luxury 都不张扬，但静奢是昂贵的低调，常态核是刻意的平庸——一个藏富，一个藏锋。", "relation": "极简主义 → Normcore；与 Quiet Luxury 对照", "img": "https://images.pexels.com/photos/7504599/pexels-photo-7504599.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "极简日常服饰", "degree": 0, "related": ["Coquettecore", "Vanillacore", "Blokecore", "Barbiecore", "Dopaminecore", "Egirlcore"]}, {"id": "blokecore", "name": "Blokecore", "cn": "球衣核", "family": "身份风格核", "era": "2020s", "mood": "乐观", "def": "以复古足球球衣为核心的穿搭：球队条纹、宽松牛仔裤、运动鞋与酒吧文化。它把球迷身份穿成日常。", "tags": ["复古球衣", "条纹", "宽松牛仔", "运动鞋", "酒吧", "球迷"], "tags2": ["时尚穿搭", "体育活动", "怀旧年代"], "judge": "和 Gorpcore 都是运动服饰日常化，但户外核借的是登山，球衣核借的是足球——一个向山，一个向球场。", "relation": "体育迷文化 → Blokecore；与 Gorpcore 共享运动日常化", "img": "https://images.pexels.com/photos/28555936/pexels-photo-28555936.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "复古足球球衣", "degree": 1, "related": ["Gorpcore", "Regencycore", "Normcore", "Barbiecore", "Coquettecore", "Egirlcore"]}, {"id": "coquettecore", "name": "Coquettecore", "cn": "蝴蝶结核", "family": "身份风格核", "era": "2020s", "mood": "温暖", "def": "以蝴蝶结、蕾丝、珍珠与粉色为核心的甜美穿搭：它把「被宠爱的少女感」重新当成一种主动选择。", "tags": ["蝴蝶结", "蕾丝", "珍珠", "粉色", "缎带", "甜美"], "tags2": ["时尚穿搭", "童真", "情绪氛围"], "judge": "和 Princesscore 都甜，但公主核是在扮演童话角色，蝴蝶结核只是穿搭语言——一个在演戏，一个在出门。", "relation": "Princesscore → Coquettecore；与 Balletcore 共享柔美", "img": "https://images.pexels.com/photos/33997860/pexels-photo-33997860.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "蝴蝶结与甜美元素", "degree": 1, "related": ["Princesscore", "Barbiecore", "Dopaminecore", "Normcore", "Regencycore", "Babycored"]}, {"id": "barbiecore", "name": "Barbiecore", "cn": "芭比核", "family": "身份风格核", "era": "2020s", "mood": "乐观", "def": "以芭比娃娃的高饱和粉为信条：亮粉、塑料光泽、迷你裙与无条件乐观。2023 年电影让它成为主流。", "tags": ["芭比粉", "塑料光泽", "迷你裙", "乐观", "娃娃", "高饱和"], "tags2": ["时尚穿搭", "品牌符号", "童真"], "judge": "和 Kidcore 都是塑料感高饱和，但童核借的是儿童玩具，芭比核借的是单一的粉色神话——一个杂，一个纯。", "relation": "Dollcore → Barbiecore；与 Kidcore 共享塑料高饱和", "img": "https://images.pexels.com/photos/17682731/pexels-photo-17682731.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "芭比粉穿搭", "degree": 1, "related": ["Dollcore", "Coquettecore", "Dopaminecore", "Blokecore", "Egirlcore", "Gorpcore"]}, {"id": "regencycore", "name": "Regencycore", "cn": "摄政核", "family": "身份风格核", "era": "2020s", "mood": "温暖", "def": "以摄政时期（约 1810–1820）服饰为蓝本：高腰裙、蕾丝、手套、庄园与马车。剧集带火了这套「优雅的节制」。", "tags": ["高腰裙", "蕾丝", "手套", "庄园", "优雅", "节制"], "tags2": ["时尚穿搭", "怀旧年代", "身份扮演"], "judge": "和 Royalcore 都是历史服饰，但王室核横跨各朝代、强调权力，摄政核锁定一个短时期、强调礼仪。", "relation": "Royalcore → Regencycore；与 Bridgerton 效应同源", "img": "https://images.pexels.com/photos/36073208/pexels-photo-36073208.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "摄政时期风格服饰", "degree": 1, "related": ["Royalcore", "Blokecore", "Coquettecore", "Barbiecore", "Egirlcore", "Gorpcore"]}, {"id": "egirlcore", "name": "Egirlcore", "cn": "电子女孩核", "family": "身份风格核", "era": "2020s", "mood": "反讽", "def": "TikTok 时代的表情化穿搭：双马尾、彩色挑染、猫耳、网纱与自拍滤镜。它把「网络人格」直接穿在身上。", "tags": ["双马尾", "彩色挑染", "猫耳", "网纱", "滤镜", "自拍"], "tags2": ["数字原生", "时尚穿搭", "音乐场景"], "judge": "和 Scenecore 共享挑染与反讽，但场景核复兴的是 2000 年代亚文化，电子女孩核是当下的平台原生人设。", "relation": "Scenecore → Egirlcore；与 Cutecore 共享网络可爱", "img": "https://images.pexels.com/photos/17682731/pexels-photo-17682731.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "电子女孩风格", "degree": 1, "related": ["Scenecore", "Barbiecore", "Blokecore", "Coquettecore", "Corecore", "Cybercore"]}, {"id": "happytecore", "name": "Happytecore", "cn": "快乐核", "family": "情绪氛围核", "era": "2020s", "mood": "乐观", "def": "把「快乐」当成明确的视觉目标：明黄、笑脸、阳光、大笑的表情。它不回避幼稚，认真地宣布自己开心。", "tags": ["明黄", "笑脸", "阳光", "大笑", "明亮", "快乐宣言"], "tags2": ["情绪氛围", "童真", "数字原生"], "judge": "和 Rainbowcore 都明亮，但彩虹核用色彩排列表达，快乐核用表情符号表达——一个是色谱，一个是笑脸。", "relation": "Kidcore → Happytecore ↔ Rainbowcore", "img": "https://images.pexels.com/photos/636388/pexels-photo-636388.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "明亮快乐的色彩", "degree": 1, "related": ["Rainbowcore", "Cutecore", "Dopaminecore", "Lovecore", "Hatecore", "Babycored"]}, {"id": "lovecore", "name": "Lovecore", "cn": "爱意核", "family": "情绪氛围核", "era": "2020s", "mood": "温暖", "def": "以爱心与恋爱符号为全部装饰：红粉配色、丘比特、情书、心形物件。它把「恋爱中」变成一种可持续的家居风格。", "tags": ["爱心", "丘比特", "情书", "红粉", "心形", "恋爱"], "tags2": ["情绪氛围", "童真", "身份扮演"], "judge": "和 Coquettecore 都甜，但蝴蝶结核是关于少女感，爱意核是关于爱情本身——一个讲身份，一个讲关系。", "relation": "Cutecore → Lovecore；与 Coquettecore 共享甜美", "img": "https://images.pexels.com/photos/6709149/pexels-photo-6709149.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "粉色爱心", "degree": 1, "related": ["Cutecore", "Dopaminecore", "Happytecore", "Babycored", "Bloomcore", "Chillcore"]}, {"id": "dopaminecore", "name": "Dopaminecore", "cn": "多巴胺核", "family": "情绪氛围核", "era": "2020s", "mood": "乐观", "def": "用高饱和亮色穿搭来提升情绪：番茄红、柠檬黄、薄荷绿一起上身。它的理论基础是「颜色真的能让人开心」。", "tags": ["高饱和", "亮色", "番茄红", "柠檬黄", "薄荷绿", "情绪提升"], "tags2": ["情绪氛围", "时尚穿搭", "童真"], "judge": "和 Rainbowcore 都高饱和，但彩虹核按色环排列、追求完整，多巴胺核随意撞色、追求快乐——一个讲秩序，一个讲效果。", "relation": "Rainbowcore → Dopaminecore；与 Kidcore 共享亮色", "img": "https://images.pexels.com/photos/636388/pexels-photo-636388.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "高饱和快乐色彩", "degree": 1, "related": ["Rainbowcore", "Coquettecore", "Happytecore", "Lovecore", "Vanillacore", "Barbiecore"]}, {"id": "chillcore", "name": "Chillcore", "cn": "松弛核", "family": "情绪氛围核", "era": "2020s", "mood": "温暖", "def": "以慢下来为核心：柔和光线、自然材质、轻音乐、无所事事。它对抗的是效率焦虑，把「放松」当成需要练习的技能。", "tags": ["柔和", "慢", "自然材质", "轻音乐", "无所事事", "呼吸"], "tags2": ["情绪氛围", "家居空间", "自然水景"], "judge": "和 Cottagecore 都慢，但田园核慢在劳动（烘焙、种地），松弛核慢在停止（躺着、放空）——一个忙碌地慢，一个真的停。", "relation": "Cottagecore → Chillcore；与 Lo-fi 文化同源", "img": "https://images.pexels.com/photos/10560268/pexels-photo-10560268.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "放松柔和的室内", "degree": 1, "related": ["Cottagecore", "Vanillacore", "Dopaminecore", "Happytecore", "Heavenlycore", "Lovecore"]}, {"id": "vanillacore", "name": "Vanillacore", "cn": "香草核", "family": "情绪氛围核", "era": "2020s", "mood": "温暖", "def": "以奶油白、米色与柔和中性色为核心的「低调甜」：干净的皮肤、浅色针织、温柔的光线。甜而不腻。", "tags": ["奶油白", "米色", "中性色", "柔和", "干净", "低调甜"], "tags2": ["情绪氛围", "时尚穿搭", "极简"], "judge": "和 Clean Girl 几乎同源，但香草核强调颜色的暖与甜，干净女孩强调妆容的清透——一个讲色温，一个讲妆效。", "relation": "Clean Girl → Vanillacore；与 Quiet Luxury 共享中性色", "img": "https://images.pexels.com/photos/33997860/pexels-photo-33997860.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "奶油白柔和色调", "degree": 0, "related": ["Dopaminecore", "Normcore", "Chillcore", "Coquettecore", "Happytecore", "Heavenlycore"]}, {"id": "hatecore", "name": "Hatecore", "cn": "恨意核", "family": "情绪氛围核", "era": "2010s", "mood": "焦虑", "def": "把愤怒本身当成美学：黑暗、粗糙、破坏性的图像与字迹。它是 Tumblr 时代情绪表达最尖锐的一支。", "tags": ["愤怒", "黑暗", "粗糙", "破坏", "字迹", "尖锐"], "tags2": ["情绪氛围", "暗黑怪怖", "数字原生"], "judge": "和 Gloomycore 都是负面情绪，但阴郁核是向内退缩的抑郁，恨意核是向外爆发的攻击——一个沉默，一个怒吼。", "relation": "Gloomycore → Hatecore；与 Punk 情绪同源", "img": "https://images.pexels.com/photos/9505415/pexels-photo-9505415.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "黑暗粗糙的抽象", "degree": 1, "related": ["Gloomycore", "Happytecore", "Voidcore", "Backrooms", "Chillcore", "Corecore"]}, {"id": "heavenlycore", "name": "Heavenlycore", "cn": "天界核", "family": "情绪氛围核", "era": "2020s", "mood": "温暖", "def": "以天堂般的柔和光感为中心：云朵、粉蓝渐变、金色光晕、柔焦的幸福。它是「极乐」的视觉化。", "tags": ["云朵", "粉蓝渐变", "金光", "柔焦", "极乐", "轻盈"], "tags2": ["神话魔法", "神圣", "情绪氛围"], "judge": "和 Angelcore 都有光晕与翅膀，但天使核以角色为中心，天界核以光与空间为中心——一个有人，一个无我。", "relation": "Angelcore → Heavenlycore；与 Vaporwave 共享渐变光", "img": "https://images.pexels.com/photos/37834398/pexels-photo-37834398.jpeg?auto=compress&cs=tinysrgb&w=800", "img_desc": "天界般的柔光", "degree": 1, "related": ["Angelcore", "Chillcore", "Dopaminecore", "Ghostcore", "Happytecore", "Lovecore"]}], "links": [["Y2K", "Y3K"], ["Y2K", "Atompunk"], ["Y2K", "Fairycore"], ["Y2K", "Kidcore"], ["Frutiger Aero", "Glassmorphism"], ["Glassmorphism", "Liquid Glass"], ["Vaporwave", "Liminal Space"], ["Vaporwave", "Techno-ruin"], ["Webcore", "Neo-Brutalism"], ["Cyberpunk", "Techwear / Cybercore"], ["Cyberpunk", "Biomechanical"], ["Biomechanical", "Mecha"], ["Steampunk", "Precision Mechanism"], ["Precision Mechanism", "Y3K"], ["Retro-futurism", "Steampunk"], ["Retro-futurism", "Synthwave"], ["Cottagecore", "Fairycore"], ["Cottagecore", "Dollcore"], ["Dreamcore", "Weirdcore"], ["Dreamcore", "Kidcore"], ["Liminal Space", "Backrooms"], ["Backrooms", "Analog Horror"], ["Techno-ruin", "Cyber Mary"], ["Solarpunk", "Afrofuturism"], ["Brutalism", "Neo-Brutalism"], ["Brutalism", "High-Tech Architecture"], ["High-Tech Architecture", "Techno-ruin"], ["Industrial Design", "Precision Mechanism"], ["Industrial Design", "Greeble"], ["Greeble", "Space Opera"], ["Greeble", "Hard Sci-Fi"], ["Bionics", "Biomechanical"], ["Bionics", "Soft Robotics"], ["Soft Robotics", "Techwear / Cybercore"], ["Space Opera", "Hard Sci-Fi"], ["Space Opera", "Retro-futurism"], ["Cybernetics", "Cyberpunk"], ["Cybernetics", "Bionics"], ["Industrial Design", "Hard Sci-Fi"], ["Goblincore", "Cottagecore"], ["Goblincore", "Mushroomcore"], ["Mosscore", "Goblincore"], ["Pixiecore", "Fairycore"], ["Bloomcore", "Cottagecore"], ["Prairiecore", "Liminal Space"], ["Crowcore", "Cryptidcore"], ["Grandmacore", "Cottagecore"], ["Babycored", "Kidcore"], ["Cutecore", "Kidcore"], ["Sanriocore", "Cutecore"], ["Rainbowcore", "Kidcore"], ["Angelcore", "Fairycore"], ["Angelcore", "Heavenlycore"], ["Princesscore", "Fairycore"], ["Princesscore", "Royalcore"], ["Royalcore", "Regencycore"], ["Mermaidcore", "Fairycore"], ["Wizardcore", "Dark Academia"], ["Wizardcore", "Witchcore"], ["Clowncore", "Kidcore"], ["Clowncore", "Weirdcore"], ["Traumacore", "Pastelgore"], ["Traumacore", "Medicalcore"], ["Gloomycore", "Hatecore"], ["Ghostcore", "Angelcore"], ["Voidcore", "Dreamcore"], ["Devilcore", "Witchcore"], ["Glitchcore", "Vaporwave"], ["Scenecore", "Y2K"], ["Gamercore", "Nerdcore"], ["Nerdcore", "Dark Academia"], ["Nightcore", "Frutiger Aero"], ["Nostalgiacore", "Webcore"], ["Corecore", "Dreamcore"], ["Cybercore", "Cyberpunk"], ["Gorpcore", "Techwear / Cybercore"], ["Blokecore", "Gorpcore"], ["Barbiecore", "Dollcore"], ["Coquettecore", "Princesscore"], ["Egirlcore", "Scenecore"], ["Happytecore", "Rainbowcore"], ["Dopaminecore", "Rainbowcore"], ["Lovecore", "Cutecore"], ["Chillcore", "Cottagecore"]], "families": ["千禧科技", "复古未来", "暗黑科技", "电子废墟", "新科技风", "梦核怪核", "生态未来", "机械未来", "日常Core", "工业硬核", "田园自然核", "童真幻想核", "暗黑怪怖核", "网络原生核", "身份风格核", "情绪氛围核"], "colors": {"千禧科技": "#d4537e", "复古未来": "#8b5cf6", "暗黑科技": "#185fa5", "电子废墟": "#8a6a3b", "新科技风": "#1d9e75", "梦核怪核": "#c026a3", "生态未来": "#639922", "机械未来": "#e07b39", "日常Core": "#c9a227", "工业硬核": "#c0392b", "田园自然核": "#5d8a3c", "童真幻想核": "#d4537e", "暗黑怪怖核": "#4b4453", "网络原生核": "#185fa5", "身份风格核": "#b8860b", "情绪氛围核": "#c08552"}, "tags2": ["植物自然", "动物", "民俗幻想", "神话魔法", "神圣", "童真", "身份扮演", "时尚穿搭", "数字原生", "游戏宅", "音乐场景", "复古科技", "情绪氛围", "家居空间", "食物家务", "怀旧年代", "地域乡土", "自然水景", "暗黑怪怖", "身体意象", "职业符号", "功能性", "体育活动", "极简", "品牌符号", "品牌/版权", "收藏", "户外活动"]};
+const entries = DATA.entries;
+const links = DATA.links;
+const colors = DATA.colors;
+const byName = Object.fromEntries(entries.map(e => [e.name, e]));
+const adj = {};
+entries.forEach(e => adj[e.name] = new Set());
+links.forEach(([a,b]) => { if(adj[a] && adj[b]){ adj[a].add(b); adj[b].add(a); }});
+const state = {q:'', family:'', tag2:'', selected:null, view:'cards', walk:null};
+
+/* ===== 开放编辑配置 ===== */
+/* 填你的 GitHub 仓库，例如 'my-name/aesthetic-atlas'，填好后卡片里会出现「在 GitHub 编辑」和「提交 Issue」入口 */
+const REPO = '';
+const OV_KEY = 'aestheticOverrides.v1';
+let overrides = {};     // { 词条英文名: { imgs:[{url,desc}], img, img_desc, def, judge, cn } }
+let editMode = false;
+let carIndex = 0;
+const EDIT_KEYS = ['img','img_desc','def','judge','cn'];
+/* 原始快照：用于「还原这张」恢复到默认值 */
+const ORIG = Object.fromEntries(entries.map(e=>[e.name, Object.fromEntries(EDIT_KEYS.map(k=>[k,e[k]]))]));
+/* 运行时给每条挂 imgs 数组（默认单张） */
+for(const e of entries){ e.imgs=[{url:e.img, desc:e.img_desc||''}]; }
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function visible(){
+  const q=state.q.trim().toLowerCase();
+  return entries.filter(e=>{
+    if(state.family && e.family!==state.family) return false;
+    if(state.tag2 && !(e.tags2||[]).includes(state.tag2)) return false;
+    if(!q) return true;
+    return (e.name+' '+e.cn+' '+e.def+' '+(e.tags||[]).join(' ')).toLowerCase().includes(q);
+  });
+}
+function renderCards(){
+  const list=visible();
+  document.getElementById('count').textContent=list.length+' / '+entries.length+' 张卡片';
+  document.getElementById('cards').innerHTML=list.map(e=>`
+    <article class="card ${state.selected===e.name?'sel':''}" data-name="${esc(e.name)}">
+      <h3>${esc(e.name)} <small>${esc(e.cn)}</small></h3>
+      <div class="chips"><span class="chip fam" style="--fc:${colors[e.family]||'#888'}">${esc(e.family)}</span>${(e.tags2||[]).slice(0,3).map(t=>`<span class="chip" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>
+      <div class="thumb-wrap"><img class="thumb" src="${esc((e.imgs&&e.imgs[0]&&e.imgs[0].url)||e.img)}" alt="${esc(e.img_desc)}" loading="lazy">${(e.imgs&&e.imgs.length>1)?'<span class="img-badge">图 '+e.imgs.length+' 张</span>':''}</div>
+      <p class="def">${esc(e.def)}</p>
+      <div class="meta">${esc(e.era||'')} · ${esc(e.mood||'')} · 关联 ${e.related.length}</div>
+    </article>`).join('') || '<p class="hint">没有匹配的卡片。</p>';
+  document.querySelectorAll('.card').forEach(el=>el.onclick=ev=>{
+    const chip=ev.target.closest('[data-tag]');
+    if(chip){state.tag2=chip.dataset.tag;document.getElementById('tag2').value=state.tag2;renderCards();return;}
+    select(el.dataset.name);
+  });
+}
+function layout(nodes, edges){
+  const W=1000,H=700, idx={};
+  nodes.forEach((n,i)=>{idx[n.name]=i;const a=i*2.399963;const r=70+Math.sqrt(i)*30;n.x=W/2+Math.cos(a)*r;n.y=H/2+Math.sin(a)*r;n.vx=0;n.vy=0;n.r=7+Math.min(n.deg,8)*0.75;});
+  for(let it=0;it<240;it++){
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j];let dx=b.x-a.x,dy=b.y-a.y;let d2=Math.max(dx*dx+dy*dy,36);
+      const f=1600/d2;const d=Math.sqrt(d2);dx/=d;dy/=d;
+      a.vx-=dx*f;a.vy-=dy*f;b.vx+=dx*f;b.vy+=dy*f;
+    }
+    edges.forEach(([na,nb])=>{const a=nodes[idx[na]],b=nodes[idx[nb]];if(!a||!b)return;
+      let dx=b.x-a.x,dy=b.y-a.y;const d=Math.max(Math.sqrt(dx*dx+dy*dy),1);
+      const f=(d-105)*0.006;dx/=d;dy/=d;
+      a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f;
+    });
+    nodes.forEach(n=>{n.vx+=(W/2-n.x)*0.0007;n.vy+=(H/2-n.y)*0.0007;n.vx*=0.84;n.vy*=0.84;n.x=Math.max(35,Math.min(W-35,n.x+n.vx));n.y=Math.max(28,Math.min(H-28,n.y+n.vy));});
+  }
+}
+let graphNodes=[],graphEdges=[];
+function renderGraph(){
+  const list=visible();const show=new Set(list.map(e=>e.name));
+  graphNodes=list.map(e=>({name:e.name,deg:adj[e.name].size}));
+  graphEdges=links.filter(([a,b])=>show.has(a)&&show.has(b));
+  layout(graphNodes,graphEdges);
+  drawGraph();
+}
+function drawGraph(){
+  const svg=document.getElementById('graph');const idx={};graphNodes.forEach((n,i)=>idx[n.name]=n);
+  const hi=state.selected&&adj[state.selected]?adj[state.selected]:new Set();
+  const edgesHtml=graphEdges.map(([a,b])=>{
+    const A=idx[a],B=idx[b];if(!A||!B)return '';
+    const active=state.selected&&(a===state.selected||b===state.selected);
+    return `<line class="edge ${active?'hi':''}" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
+  }).join('');
+  const nodesHtml=graphNodes.map(n=>{
+    const e=byName[n.name];const c=colors[e.family]||'#888';
+    const dim=state.selected&&state.selected!==n.name&&!hi.has(n.name);
+    return `<g class="node ${state.selected===n.name?'sel':''} ${hi.has(n.name)?'hi':''} ${dim?'dim':''}" data-name="${esc(n.name)}" transform="translate(${n.x},${n.y})">
+      <circle r="${n.r}" fill="${c}"/><text y="${n.r+12}">${esc(e.cn||e.name)}</text></g>`;
+  }).join('');
+  svg.innerHTML=edgesHtml+nodesHtml;
+  svg.querySelectorAll('.node').forEach(g=>g.onclick=()=>select(g.dataset.name));
+}
+function select(name){
+  state.selected=name;
+  document.querySelectorAll('.card').forEach(c=>c.classList.toggle('sel',c.dataset.name===name));
+  if(state.view==='graph')drawGraph();
+  const e=byName[name];
+  document.getElementById('side').innerHTML=`
+    <h2>${esc(e.name)} <span style="font-size:12px;color:var(--muted);font-weight:400">${esc(e.cn)}</span></h2>
+    <div class="sub">${esc(e.family)} · ${esc(e.era||'')} · ${esc(e.mood||'')}</div>
+    <div class="carousel-main">
+      <img id="carImg" src="${esc(e.img)}" alt="${esc(e.img_desc)}">
+      <button class="carousel-btn prev" id="carPrev" aria-label="上一张">‹</button>
+      <button class="carousel-btn next" id="carNext" aria-label="下一张">›</button>
+      <div class="carousel-cap" id="carCap"></div>
+    </div>
+    <div class="carousel-count" id="carCount"></div>
+    <div class="carousel-dots" id="carDots"></div>
+    <p>${esc(e.def)}</p>
+    <div class="label">判别要点</div><p>${esc(e.judge||'—')}</p>
+    <div class="label">血缘关系</div><p style="color:var(--muted);font-size:12px">${esc(e.relation||'—')}</p>
+    <div class="label">相关笔记 · ${e.related.length}</div>
+    <div class="rel">${e.related.map(n=>`<button data-rel="${esc(n)}">${esc(byName[n]?byName[n].cn:n)}</button>`).join('')}</div>`;
+  document.querySelectorAll('[data-rel]').forEach(b=>b.onclick=()=>select(b.dataset.rel));
+  const pv=document.getElementById('carPrev'), nx=document.getElementById('carNext');
+  if(pv) pv.onclick=()=>{const n=e.imgs.length;carIndex=(carIndex-1+n)%n;renderCarousel(e);};
+  if(nx) nx.onclick=()=>{const n=e.imgs.length;carIndex=(carIndex+1)%n;renderCarousel(e);};
+  initCarousel(e);
+  if(editMode) renderEditPanel(e);
+}
+function setView(v){
+  state.view=v;
+  document.getElementById('btnCards').classList.toggle('active',v==='cards');
+  document.getElementById('btnGraph').classList.toggle('active',v==='graph');
+  document.getElementById('cardsView').classList.toggle('on',v==='cards');
+  document.getElementById('graphView').classList.toggle('on',v==='graph');
+  if(v==='graph')renderGraph(); else renderCards();
+}
+document.getElementById('q').oninput=ev=>{state.q=ev.target.value;state.view==='graph'?renderGraph():renderCards();};
+document.getElementById('family').onchange=ev=>{state.family=ev.target.value;state.view==='graph'?renderGraph():renderCards();};
+document.getElementById('tag2').onchange=ev=>{state.tag2=ev.target.value;state.view==='graph'?renderGraph():renderCards();};
+document.getElementById('btnCards').onclick=()=>setView('cards');
+document.getElementById('btnGraph').onclick=()=>setView('graph');
+document.getElementById('btnReset').onclick=()=>{
+  state.q='';state.family='';state.tag2='';state.selected=null;
+  document.getElementById('q').value='';document.getElementById('family').value='';document.getElementById('tag2').value='';
+  setView(state.view);
+  document.getElementById('side').innerHTML='<p class="hint">点一张卡片开始。右侧会像 flomo 的「相关笔记」一样，按共享标签与血缘关系推荐相邻卡片。</p>';
+};
+document.getElementById('btnWalk').onclick=()=>{
+  const pool=visible();if(!pool.length)return;
+  let next;
+  if(!state.selected || state.walk!==state.selected){next=pool[Math.floor(Math.random()*pool.length)].name;}
+  else{const cand=byName[state.selected].related.filter(n=>showVisible(n));next=cand.length?cand[Math.floor(Math.random()*cand.length)]:pool[Math.floor(Math.random()*pool.length)].name;}
+  state.walk=next;select(next);
+  if(state.view!=='graph')document.querySelector(`.card[data-name="${CSS.escape(next)}"]`)?.scrollIntoView({behavior:'smooth',block:'center'});
+};
+function showVisible(n){return visible().some(e=>e.name===n);}
+DATA.families.forEach(f=>{const o=document.createElement('option');o.value=f;o.textContent=f;document.getElementById('family').appendChild(o);});
+DATA.tags2.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;document.getElementById('tag2').appendChild(o);});
+
+/* ===== 修正层 ===== */
+function stripMeta(j){ for(const k of Object.keys(j||{})) if(k.charAt(0)==='_') delete j[k]; return j||{}; }
+function applyOverrides(){
+  for(const e of entries){
+    const o=overrides[e.name]||{}, base=ORIG[e.name]||{};
+    for(const k of EDIT_KEYS) e[k]=(o[k]!=null && o[k]!=='') ? o[k] : base[k];
+    let imgs;
+    if(Array.isArray(o.imgs) && o.imgs.length){
+      imgs=o.imgs.filter(x=>x&&x.url).map(x=>({url:x.url,desc:x.desc||''}));
+    }else if(o.img){
+      imgs=[{url:o.img,desc:o.img_desc||''}];
+    }else{
+      imgs=[{url:e.img,desc:e.img_desc||''}];
+    }
+    e.imgs=imgs.length?imgs:[{url:base.img,desc:base.img_desc||''}];
+  }
+}
+function loadLocalOverrides(){
+  try{ overrides=stripMeta(JSON.parse(localStorage.getItem(OV_KEY)||'{}')); }catch(err){ overrides={}; }
+  applyOverrides();
+}
+function saveLocalOverrides(){ try{ localStorage.setItem(OV_KEY,JSON.stringify(overrides)); }catch(err){} }
+async function loadRemoteOverrides(){
+  if(location.protocol==='file:') return false;
+  try{
+    const r=await fetch('./overrides.json?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok) return false;
+    const local=overrides;
+    overrides=Object.assign({},stripMeta(await r.json()),local);
+    applyOverrides();
+    return true;
+  }catch(err){ return false; }
+}
+function toast(msg){
+  let t=document.getElementById('_toast');
+  if(!t){
+    t=document.createElement('div'); t.id='_toast';
+    t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#2b2a27;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:99;box-shadow:0 6px 24px rgba(0,0,0,.2);transition:opacity .3s';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toast._t); toast._t=setTimeout(()=>{t.style.opacity='0';},2600);
+}
+function exportOverrides(){
+  const blob=new Blob([JSON.stringify(overrides,null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='overrides.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('已导出 overrides.json');
+}
+
+/* ===== 粘贴 ===== */
+function pickUrl(text){
+  if(!text) return '';
+  const t=String(text).trim();
+  if(/^https?:\/\/\S+$/i.test(t)) return t;
+  let m=t.match(/!\[[^\]]*\]\((https?:\/\/[^\s)]+)\)/i); if(m) return m[1];
+  m=t.match(/https?:\/\/[^\s"'<>)]+/i); return m?m[0]:t;
+}
+async function pasteInto(input){
+  try{
+    const txt=await navigator.clipboard.readText();
+    const url=pickUrl(txt);
+    if(!url){ toast('剪贴板里没有找到链接'); return; }
+    input.value=url; input.focus(); toast('已粘贴图片链接');
+  }catch(err){
+    toast('无法读取剪贴板，请点输入框后直接按 Ctrl+V');
+  }
+}
+document.addEventListener('paste', ev=>{
+  if(!editMode || !state.selected) return;
+  const tag=(ev.target && ev.target.tagName) || '';
+  if(tag==='INPUT' || tag==='TEXTAREA') return;   // 输入框内交给原生粘贴
+  const first=document.querySelector('#imgEditorList .edUrl');
+  if(!first) return;
+  ev.preventDefault();
+  const txt=(ev.clipboardData && ev.clipboardData.getData('text')) || '';
+  const url=pickUrl(txt);
+  if(url){ first.value=url; first.focus(); toast('已粘贴到第一张图片'); }
+});
+
+/* ===== 轮播 ===== */
+function renderCarousel(e){
+  const imgs=(e.imgs&&e.imgs.length)?e.imgs:[{url:e.img,desc:e.img_desc||''}];
+  if(carIndex>=imgs.length) carIndex=0;
+  const cur=imgs[carIndex];
+  const img=document.getElementById('carImg'); if(img){ img.src=cur.url; img.alt=cur.desc||''; }
+  const cap=document.getElementById('carCap'); if(cap) cap.textContent=cur.desc||'';
+  const cnt=document.getElementById('carCount'); if(cnt) cnt.textContent=imgs.length>1?(carIndex+1)+' / '+imgs.length:'';
+  const multi=imgs.length>1;
+  const pv=document.getElementById('carPrev'), nx=document.getElementById('carNext');
+  if(pv) pv.style.display=multi?'':'none';
+  if(nx) nx.style.display=multi?'':'none';
+  const dots=document.getElementById('carDots');
+  if(dots){
+    dots.innerHTML=multi?imgs.map((_,i)=>'<button class="carousel-dot '+(i===carIndex?'on':'')+'" data-i="'+i+'"></button>').join(''):'';
+    dots.querySelectorAll('.carousel-dot').forEach(d=>d.onclick=()=>{carIndex=+d.dataset.i;renderCarousel(e);});
+  }
+}
+function initCarousel(e){ carIndex=0; renderCarousel(e); }
+
+/* ===== 多图编辑 ===== */
+function imgEditRow(i, im){
+  return '<div class="img-edit-row" data-idx="'+i+'">'
+    + '<div class="img-no">图片 '+(i+1)+'</div>'
+    + '<div class="erow"><input class="edUrl" value="'+esc(im.url||'')+'" placeholder="图片直链 URL（Ctrl+V 粘贴）">'
+    + '<button class="paste-btn" type="button" title="从剪贴板粘贴图片链接">📋 粘贴</button>'
+    + '<button class="del-btn" type="button" title="删除这张">✕</button></div>'
+    + '<input class="edDesc" value="'+esc(im.desc||'')+'" placeholder="图片说明 / 来源（可选）"></div>';
+}
+function bindImgRows(panel){
+  panel.querySelectorAll('.paste-btn').forEach(b=>b.onclick=()=>pasteInto(b.closest('.img-edit-row').querySelector('.edUrl')));
+  panel.querySelectorAll('.del-btn').forEach(b=>b.onclick=()=>{
+    const list=document.getElementById('imgEditorList');
+    if(list.children.length<=1){ toast('至少保留一张图片'); return; }
+    b.closest('.img-edit-row').remove();
+    [...list.children].forEach((r,i)=>{ r.dataset.idx=i; r.querySelector('.img-no').textContent='图片 '+(i+1); });
+  });
+}
+function saveOne(name){
+  const o={}, list=document.getElementById('imgEditorList'), imgs=[];
+  if(list) [...list.children].forEach(r=>{
+    const url=r.querySelector('.edUrl').value.trim(), desc=r.querySelector('.edDesc').value.trim();
+    if(url) imgs.push({url,desc});
+  });
+  if(imgs.length){ o.imgs=imgs; o.img=imgs[0].url; o.img_desc=imgs[0].desc; }
+  const def=document.getElementById('edDef').value.trim();
+  if(def) o.def=def;
+  if(Object.keys(o).length) overrides[name]=o; else delete overrides[name];
+  saveLocalOverrides(); applyOverrides(); renderCards(); select(name);
+  toast('已保存「'+name+'」的修正'+(imgs.length>1?'（'+imgs.length+' 张图）':''));
+}
+function revertOne(name){
+  delete overrides[name]; saveLocalOverrides(); applyOverrides(); renderCards(); select(name);
+  toast('已还原「'+name+'」为默认版本');
+}
+function renderEditPanel(e){
+  const side=document.getElementById('side');
+  const o=overrides[e.name]||{};
+  const imgs=(e.imgs&&e.imgs.length)?e.imgs:[{url:e.img,desc:e.img_desc||''}];
+  const gh = REPO
+    ? '<a href="https://github.com/'+REPO+'/edit/main/overrides.json" target="_blank" rel="noopener">在 GitHub 改 overrides.json ↗</a>'
+      + '<a href="https://github.com/'+REPO+'/issues/new?title='+encodeURIComponent('[图片纠正] '+e.name)+'&body='+encodeURIComponent('词条：'+e.name+'（'+e.cn+'）\n当前图片：'+(imgs[0]?imgs[0].url:'')+'\n建议改成：')+'" target="_blank" rel="noopener">提交 Issue 反馈 ↗</a>'
+    : '<span style="font-size:11px;color:var(--muted)">在脚本里填写 REPO 后，这里会出现 GitHub 编辑与 Issue 入口</span>';
+  const panel=document.createElement('div');
+  panel.className='edit-panel';
+  panel.innerHTML=''
+    + '<div class="label" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:14px">✎ 纠错模式 · 修改这张卡片</div>'
+    + '<div class="label">代表图片（可多张，详情里点箭头/圆点切换）</div>'
+    + '<div id="imgEditorList">'+imgs.map((im,i)=>imgEditRow(i,im)).join('')+'</div>'
+    + '<button id="edAddImg" class="add-img">＋ 添加一张图片</button>'
+    + '<div class="label" style="margin-top:12px">一句话定义</div>'
+    + '<textarea id="edDef">'+esc(o.def!=null?o.def:e.def)+'</textarea>'
+    + '<div class="row"><button id="edSave" class="active">保存修正</button><button id="edRevert">还原这张</button></div>'
+    + '<div class="row">'+gh+'</div>';
+  side.appendChild(panel);
+  bindImgRows(panel);
+  document.getElementById('edAddImg').onclick=()=>{
+    const list=document.getElementById('imgEditorList');
+    const wrap=document.createElement('div');
+    wrap.innerHTML=imgEditRow(list.children.length,{url:'',desc:''});
+    list.appendChild(wrap.firstElementChild);
+    bindImgRows(panel);
+  };
+  document.getElementById('edSave').onclick=()=>saveOne(e.name);
+  document.getElementById('edRevert').onclick=()=>revertOne(e.name);
+}
+
+/* ===== 事件 ===== */
+document.getElementById('btnEditMode').onclick=()=>{
+  editMode=!editMode;
+  document.getElementById('btnEditMode').classList.toggle('edit-on',editMode);
+  document.getElementById('editBanner').classList.toggle('on',editMode);
+  if(state.selected) select(state.selected); else toast('纠错模式已开启：点任意卡片开始改图');
+};
+document.getElementById('btnExport').onclick=exportOverrides;
+document.getElementById('btnImport').onclick=()=>document.getElementById('fileImport').click();
+document.getElementById('fileImport').onchange=ev=>{
+  const f=ev.target.files&&ev.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const j=stripMeta(JSON.parse(rd.result));
+      overrides=Object.assign({},overrides,j); saveLocalOverrides(); applyOverrides();
+      renderCards(); if(state.selected) select(state.selected);
+      toast('已导入 '+Object.keys(j).length+' 条修正');
+    }catch(err){ toast('导入失败：JSON 格式错误'); }
+  };
+  rd.readAsText(f); ev.target.value='';
+};
+
+/* ===== 启动 ===== */
+loadLocalOverrides();
+renderCards();
+loadRemoteOverrides().then(changed=>{
+  if(changed){ renderCards(); if(state.selected) select(state.selected); }
+});
+</script>
+</body>
+</html>
