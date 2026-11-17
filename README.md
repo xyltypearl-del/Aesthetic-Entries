@@ -11,8 +11,8 @@
 1. 打开页面，点顶部工具栏的 **✎ 纠错模式**
 2. 点任意一张卡片，右侧会出现编辑面板
 3. 修改图片链接，可顺手改图片说明、一句话定义
-   - **粘贴图片链接**：点图片框旁的 **📋 粘贴** 按钮；或点中图片框后直接按 **Ctrl+V**（会自动从剪贴板文字里提取 http 链接，支持整段 URL / Markdown 图片语法）
-   - 焦点不在任何输入框时直接按 **Ctrl+V**，会自动贴到第一张图片
+   - **粘贴图片本身**：点中图片框后按 **Ctrl+V**，直接把复制的图片贴进来（会自动压缩成 JPEG、最长边 2000px，避免撑大文件）；也可点框选本地图片、或把图片文件拖进去
+   - **粘贴图片链接**：点图片框旁的 **📋 粘贴链接** 按钮（从剪贴板文字里提取 http 链接）；焦点不在任何输入框时直接按 Ctrl+V，会优先贴图片、其次才是链接
 4. 点 **保存修正** —— 立即生效，且存在你本机浏览器里，刷新不丢
 5. 收集好若干条后，点 **导出修正**，会下载一个 `overrides.json`
 
@@ -72,9 +72,12 @@
 1. 在 GitHub 新建一个仓库，例如 `aesthetic-atlas`，设为 **Public**
 2. 把本目录下的文件全部上传进去：
    - `index.html`
-   - `overrides.json`
+   - `overrides.json`（已改为图片相对路径，16KB）
+   - `imgs/`（**62 张精挑纠错图，务必整个文件夹一起传，不能漏**）
    - `.nojekyll`（空文件，防止 Pages 用 Jekyll 处理）
    - `README.md`
+
+   > 目录结构必须是：仓库根目录同时有 `index.html`、`overrides.json`、`imgs/` 三者。`imgs/` 里的文件名与 `overrides.json` 中的 `imgs/xxx.jpg` 路径一一对应，漏传或改文件夹名都会导致图片变死链。
 3. 仓库 **Settings → Pages → Build and deployment**：
    - Source 选 `Deploy from a branch`
    - Branch 选 `main`，目录选 `/ (root)`，Save

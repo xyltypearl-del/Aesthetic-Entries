@@ -356,7 +356,34 @@ async function pasteInto(input){
     toast('无法读取剪贴板，请点输入框后直接按 Ctrl+V');
   }
 }
-function fileToDataURL(file, cb){ const r=new FileReader(); r.onload=()=>cb(r.result); r.readAsDataURL(file); }
+/* 粘贴/拖入/选文件统一入口：读入后自动压缩成 JPEG，避免 base64 撑爆导出的 JSON。
+   操作方式完全不变——照样 Ctrl+V，只是存进去的图已经瘦身。 */
+function fileToDataURL(file, cb){
+  const r=new FileReader();
+  r.onerror=()=>cb(null);
+  r.onload=()=>{
+    // 已经是小体积 JPEG 就不再二次压缩，直接保留原图质量
+    if(file && /jpe?g/i.test(file.type||'') && file.size<=220*1024){ cb(r.result); return; }
+    const img=new Image();
+    img.onerror=()=>cb(r.result);            // 解码失败兜底：原样返回，绝不丢图
+    img.onload=()=>{
+      try{
+        const MAX=2000;                      // 卡片显示足够清晰的最长边
+        let w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+        const s=Math.min(1, MAX/Math.max(w,h));
+        w=Math.max(1,Math.round(w*s)); h=Math.max(1,Math.round(h*s));
+        const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+        const ctx=cv.getContext('2d');
+        ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);   // JPEG 无透明通道，白底避免透明区变黑
+        ctx.drawImage(img,0,0,w,h);
+        const out=cv.toDataURL('image/jpeg',0.82);
+        cb(out.length < r.result.length ? out : r.result); // 万一压完反而更大，就用原图
+      }catch(e){ cb(r.result); }
+    };
+    img.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
 function readClipboardImage(ev){
   const items=(ev.clipboardData && ev.clipboardData.items) || [];
   for(const it of items){ if(it.type && it.type.indexOf('image/')===0){ return it.getAsFile(); } }
