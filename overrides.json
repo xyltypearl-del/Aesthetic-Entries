@@ -1,20 +1,429 @@
 {
-  "_说明": "图片纠错覆盖层。键为词条英文名，只需写要改的字段，其余字段自动沿用默认值。",
-  "_可改字段": {
-    "imgs": "图片数组，可多张。示例：[{\"url\":\"图片直链\",\"desc\":\"说明\"},{\"url\":\"...\",\"desc\":\"...\"}]",
-    "img": "第一张图片直链（兼容旧格式；若写了 imgs 可省略）",
-    "img_desc": "第一张图片说明",
-    "def": "一句话定义",
-    "judge": "判别要点",
-    "cn": "中文名"
-  },
-  "_多图示例": {
-    "词条英文名": {
-      "imgs": [
-        {"url": "https://…第一张.jpg", "desc": "说明一"},
-        {"url": "https://…第二张.jpg", "desc": "说明二"}
-      ]
-    }
-  },
-  "_提示": "在页面点「✎ 纠错模式」改图、加图后点「导出修正」，下载的文件就是本格式，直接覆盖本文件即可。"
+ "Y2K": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/13058125/pexels-photo-13058125.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "多彩玻璃光泽（Y2K镭射感）",
+    "data": "imgs/000_Y2K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/001_Y2K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/002_Y2K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/003_Y2K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/004_Y2K.jpg"
+   }
+  ],
+  "img": "imgs/000_Y2K.jpg",
+  "img_desc": "多彩玻璃光泽（Y2K镭射感）",
+  "def": "Y2K未来主义是兴起于1990年代末至2000年代初的美学风格，涵盖时尚、工业设计、平面艺术及流行文化。当时互联网与数字科技刚萌芽，人类安全度过“千禧虫”危机，全社会对即将到来的21世纪抱有极度真诚、纯粹的技术崇拜与乐观主义。\n世纪交替之际对未来的甜美想象：科技是玩具，身体是可穿戴的塑料梦境。商业化 Y2K 以浅色为主——银、冰蓝、糖果粉，而非黑底霓虹。"
+ },
+ "Frutiger Aero": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/10082927/pexels-photo-10082927.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "霓虹灯下的雕塑（光泽感）",
+    "data": "imgs/005_Frutiger_Aero.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/006_Frutiger_Aero.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/007_Frutiger_Aero.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/008_Frutiger_Aero.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/009_Frutiger_Aero.jpg"
+   }
+  ],
+  "img": "imgs/005_Frutiger_Aero.jpg",
+  "img_desc": "霓虹灯下的雕塑（光泽感）",
+  "def": "「湿的和绿的」科技乐观主义：Windows XP 草地、Vista 玻璃、气泡与水滴。它把技术当成朋友，而不是异物。"
+ },
+ "Vaporwave": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/10082927/pexels-photo-10082927.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "霓虹雕像（蒸汽波）",
+    "data": "imgs/010_Vaporwave.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/011_Vaporwave.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/012_Vaporwave.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/013_Vaporwave.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/014_Vaporwave.jpg"
+   }
+  ],
+  "img": "imgs/010_Vaporwave.jpg",
+  "img_desc": "霓虹雕像（蒸汽波）",
+  "def": "蒸汽波是 2010 年代从互联网里长出来的一种风格，最早是一群音乐人搞出来的：把 80、90 年代的老歌切碎、放慢、加回声，做成一种又熟悉又陌生的声音。\n视觉上它有一套自己的符号：粉紫渐变天空、希腊大理石雕像、棕榈树、延伸到远方的网格地面，再掺一点老电脑界面和 VHS 录像带的噪点。\n对消费主义乌托邦的慢速哀悼。大理石胸像、Windows 95 界面、日文装饰、VHS 故障——用旧界面把「曾经的未来」变成一场梦。"
+ },
+ "Synthwave": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/39531609/pexels-photo-39531609.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "彩虹3D地形（合成波）",
+    "data": "imgs/015_Synthwave.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/016_Synthwave.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/017_Synthwave.jpg"
+   }
+  ],
+  "img": "imgs/015_Synthwave.jpg",
+  "img_desc": "彩虹3D地形（合成波）",
+  "def": "Synthwave 是一种出现在 2000 年代中后期的电子音乐流派，其灵感来自 1980 年代怀旧的配乐、视频游戏和流行文化。通常与 Synthwave 相关的视觉效果源自 Neon Noir。该流派由 College、Kavinsky 和 FM Attack 等乐队开创。\n\t\n这些音乐在法国浩室和意大利迪斯科音乐流派中具有很强的一些关键特征。真正的合成器浪潮来自 1980 年代由范吉利斯（银翼杀手）和 Tangerine Dream（Firestarter）等人创作的电影配乐。虽然该流派的受欢迎程度开始略有下降，但仍然有非常忠实的追随者，很多音乐家仍然保持人气。\n对八十年代不加讽刺的浪漫化：霓虹网格延伸到落日，速度本身就是希望。和蒸汽波最大的区别是——它不反讽。"
+ },
+ "Y3K": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/32200384/pexels-photo-32200384.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "未来全息机甲战士",
+    "data": "imgs/018_Y3K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/019_Y3K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/020_Y3K.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/021_Y3K.jpg"
+   }
+  ],
+  "img": "imgs/018_Y3K.jpg",
+  "img_desc": "未来全息机甲战士",
+  "def": "Y3K风格是对Y2K美学的深度迭代与哲学反叛——它不再简单怀旧于千禧年初的乐观数字未来主义，而是对一场尚未发生的“技术未来”进行忧郁的考古。这种美学站在2020年代的当下，想象并重构公元3000年（Y3K）的视觉遗产，核心精神是在技术过度发达的废墟中，寻找失落的有机诗意。\n不是对千禧年的致敬，而是对公元 3000 年的幻想。AI、元宇宙、VR 加入后，Y2K 的甜腻被剥离，换成冷冽金属与超现实结构。\nY3K风格本质上是对“进步主义”的忧郁反思和浪漫重构。它质疑直线前进的技术史观，提出一种循环的、层积的时间模型——未来会包含过去，高级技术模仿原始工艺，而最前沿的设计看起来可能像出土文物。"
+ },
+ "Retro-futurism": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/15166489/pexels-photo-15166489.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "霓虹建筑（复古未来）",
+    "data": "imgs/022_Retro_futurism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/023_Retro_futurism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/024_Retro_futurism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/025_Retro_futurism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/026_Retro_futurism.jpg"
+   }
+  ],
+  "img": "imgs/022_Retro_futurism.jpg",
+  "img_desc": "霓虹建筑（复古未来）",
+  "def": "「过去想象的未来」这一整个家族的统称。Y2K、Synthwave、蒸汽波都在这把大伞下，不同的是它们选择的年代与情绪。"
+ },
+ "Cyberpunk": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/28122495/pexels-photo-28122495.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "霓虹赛博都市",
+    "data": ""
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/027_Cyberpunk.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/028_Cyberpunk.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/029_Cyberpunk.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/030_Cyberpunk.jpg"
+   }
+  ],
+  "img": "https://images.pexels.com/photos/28122495/pexels-photo-28122495.jpeg?auto=compress&cs=tinysrgb&w=800",
+  "img_desc": "霓虹赛博都市",
+  "def": "赛博朋克（Cyberpunk）是 1980 年代兴起的一股科幻浪潮：科技发达到了极点，普通人的生活却越来越糟。\n「高科技，低生活」就是它的核心。\n1982 年《银翼杀手》先定下了视觉，1984 年《神经漫游者》再把世界观写实——霓虹灯、雨夜、大公司、街头黑客，都从这儿来。\n技术高度发达而人性被压扁的世界——霓虹是它的妆，雨水是它的泪。"
+ },
+ "Techwear / Cybercore": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/8107947/pexels-photo-8107947.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "皮夹克机能造型",
+    "data": "imgs/031_Techwear_Cybercore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/032_Techwear_Cybercore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/033_Techwear_Cybercore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/034_Techwear_Cybercore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/035_Techwear_Cybercore.jpg"
+   }
+  ],
+  "img": "imgs/031_Techwear_Cybercore.jpg",
+  "img_desc": "皮夹克机能造型",
+  "def": "把未来穿在身上：口袋、绑带、防水面料、反光条。城市游牧者的实用主义战袍。"
+ },
+ "Analog Horror": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/15243523/pexels-photo-15243523.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "旧电视堆（模拟质感）",
+    "data": "imgs/036_Analog_Horror.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/037_Analog_Horror.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/038_Analog_Horror.jpg"
+   }
+  ],
+  "img": "imgs/036_Analog_Horror.jpg",
+  "img_desc": "旧电视堆（模拟质感）",
+  "def": "用旧录像带的质感讲恐怖故事——雪花、磁带失真、被污染的儿童节目。恐怖来自媒介本身，而不是情节。\n2015年，Kris Straub在YouTube上推出的 Local 58 是模拟恐怖（Analog Horror）的开山之作。\t\n一个叫 Local 58 的虚构地方台，画面全是老式电视信号、雪花屏、画质失真、紧急广播系统（EAS）。你以为是普通的深夜节目，下一秒画面就被被神秘信号劫持，插进诡异警报、神秘图案和无法解释的画面、反复诱导人们望向月亮……"
+ },
+ "Neo-Brutalism": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/15166489/pexels-photo-15166489.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "混凝土建筑夜景",
+    "data": "imgs/039_Neo_Brutalism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/040_Neo_Brutalism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/041_Neo_Brutalism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/042_Neo_Brutalism.jpg"
+   }
+  ],
+  "img": "imgs/039_Neo_Brutalism.jpg",
+  "img_desc": "混凝土建筑夜景",
+  "def": "新粗野主义的兴起与数字时代的反叛精神有关。设计师和艺术家们从20世纪中期的建筑粗野主义(Brutalism)中汲取灵感，将其粗犷、原始的美学带入现代数字舞台，以\"新粗野主义”的形式，挑战当前主流的设计文化，追求一种真实、未加工甚至\"反UX”的表达方式。\n拒绝圆角和阴影的修饰：暴露结构、粗体字、纯色块。在数字世界里，「丑」成为一种诚实。"
+ },
+ "Techno-ruin": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/19037726/pexels-photo-19037726.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "电子垃圾堆（电子废墟）",
+    "data": "imgs/043_Techno_ruin.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/044_Techno_ruin.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/045_Techno_ruin.jpg"
+   }
+  ],
+  "img": "imgs/043_Techno_ruin.jpg",
+  "img_desc": "电子垃圾堆（电子废墟）",
+  "def": "把过时的机器当作遗迹来凝视：CRT 显示器、缠绕的电线、锡箔反光。曾经的未来，成了今天的考古现场。"
+ },
+ "Cyber Mary": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/19037726/pexels-photo-19037726.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "电子垃圾堆（电子废墟）",
+    "data": "imgs/046_Cyber_Mary.jpg"
+   }
+  ],
+  "img": "imgs/046_Cyber_Mary.jpg",
+  "img_desc": "电子垃圾堆（电子废墟）",
+  "def": "圣像与电子垃圾的强制并置：永恒的神圣住进正在过时的技术，看到的不是亵渎，是信仰在数字时代的流亡。"
+ },
+ "Glassmorphism": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/13058125/pexels-photo-13058125.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "彩色玻璃光泽（玻璃拟态）",
+    "data": "imgs/047_Glassmorphism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/048_Glassmorphism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/049_Glassmorphism.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/050_Glassmorphism.jpg"
+   }
+  ],
+  "img": "imgs/047_Glassmorphism.jpg",
+  "img_desc": "彩色玻璃光泽（玻璃拟态）",
+  "def": "柔和粉彩渐变 + 磨砂模糊玻璃面板：平静、通透、无重力。当代大厂 UI 的默认语气。\n风格特点是磨砂透明+背景模糊，背景色会穿过表面，形成轻盈的悬浮层。"
+ },
+ "Liquid Glass": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/13058125/pexels-photo-13058125.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "彩色玻璃光泽（玻璃拟态）",
+    "data": "imgs/051_Liquid_Glass.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/052_Liquid_Glass.jpg"
+   }
+  ],
+  "img": "imgs/051_Liquid_Glass.jpg",
+  "img_desc": "彩色玻璃光泽（玻璃拟态）",
+  "def": "被内容着色的折射玻璃：UI 不再是容器，而是会流动、会折射的活体表面。\n有透镜感+动态适应，与玻璃拟态的区别在有边缘光学、形变与上下文共同参与表现。"
+ },
+ "Dreamcore": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/15588865/pexels-photo-15588865.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "童年的红房子",
+    "data": "imgs/053_Dreamcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/054_Dreamcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/055_Dreamcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/056_Dreamcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/057_Dreamcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/058_Dreamcore.jpg"
+   }
+  ],
+  "img": "imgs/053_Dreamcore.jpg",
+  "img_desc": "童年的红房子",
+  "def": "𝑫𝒓𝒆𝒂𝒎𝒄𝒐𝒓𝒆是一种以梦境、怀旧与超现实为核心的互联网美学。它将熟悉的事物置于不合常理的场景中，营造出似曾相识、朦胧迷离，又有些陌生的梦境体验。柔和、超现实、半记得的梦：褪色的照片、奇怪的光、说不清的熟悉感。\n\n在2010年代末至2020年代初逐渐流行于互联网。Tumblr、TikTok 等平台上的早期网络图像、旧游戏和童年记忆，都成为它的重要灵感来源。\n\n「视觉元素」 云朵  彩虹  空泳池  旧游乐场  无限走廊 漂浮门窗  眼睛  翅膀  蘑菇  CRT电视  奇异文字\n\t\n「光影质感」 柔焦  朦胧光晕  轻微过曝  旧数码颗粒 低清拼贴  超现实渲染\n\t\n「情绪氛围」 怀旧  空灵  迷失  熟悉又陌生 温柔中带着一丝不安\n\n梦核最迷人的地方，或许就是让你怀念一个从未去过的地方。像是一场已经遗忘，却依然舍不得醒来的梦。"
+ },
+ "Weirdcore": {
+  "imgs": [
+   {
+    "url": "https://images.pexels.com/photos/15243523/pexels-photo-15243523.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "desc": "",
+    "data": "imgs/059_Weirdcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/060_Weirdcore.jpg"
+   },
+   {
+    "url": "",
+    "desc": "",
+    "data": "imgs/061_Weirdcore.jpg"
+   }
+  ],
+  "img": "imgs/059_Weirdcore.jpg",
+  "img_desc": "",
+  "def": "梦核的焦虑版本：饱和、噪点、刻意的不适感。同样的梦，开始破碎。\n怪核（Weirdcore），网络超现实视觉美学。依靠低保真画质、阈限空旷空间、错乱符号与无逻辑文字，制造熟悉环境里莫名的疏离、迷失与隐隐不安，不是直白的血腥恐怖，偏向记忆错乱、误入异空间的诡异感。\n\t\n🕯️核心情绪：迷失、疏离、认知上的违和不安。\n\t\n🕯️视觉特征：\n·画质：低分辨率、图像压缩噪点、过曝眩光，复古劣质数码成像效果。\n·场景：大量阈限空间—— 空荡走廊、废弃大厅、无人楼道，空旷而死寂。\n·标志性意象：漂浮的孤立眼球、畸形物体、比例错乱的家具；乱码、无意义箭头、莫名其妙的碎片化文字，文字来源不明，语义残缺。\n·色彩：常出现失真、发灰或者怪异刺眼的撞色；透视经常扭曲，空间逻辑断裂。\n\t\n🕯️创作逻辑： 利用 “既视感”，唤起类似残缺童年记忆、半清醒噩梦的体验；不安来自信息缺失，逻辑失效，而不是怪物和血腥画面。"
+ }
 }
