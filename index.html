@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>美学卡片 · flomo 式网状联想</title>
+<title>美学风格词典｜Aesthetics Lexicon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -20,6 +20,7 @@
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter','LXGW WenKai',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.65;font-size:14px}
 .wrap{max-width:1480px;margin:0 auto;padding:28px 24px 70px}
 header h1{font-family:var(--font-serif),'LXGW WenKai',serif;font-size:27px;margin:0 0 6px;font-weight:600;letter-spacing:.2px}
+header h1 .h1-en{font-family:var(--font-serif),serif;font-size:19px;font-weight:400;color:var(--accent);margin-left:8px;letter-spacing:.3px}
 header p{margin:0;color:var(--muted);font-size:13px}
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:22px 0 16px}
 input,select{font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;outline:none}
@@ -97,13 +98,18 @@ button.edit-on{background:var(--accent);border-color:var(--accent);color:#fff}
 .img-edit-row .erow input{margin-top:0}
 .img-edit-row .paste-btn,.img-edit-row .del-btn{font-size:11px;padding:6px 9px;flex:none}
 .img-edit-row .del-btn{color:#b91c1c;border-color:#fecaca}
+.img-edit-row .dropzone{margin-top:6px;min-height:66px;border:1.5px dashed #d9c5b5;border-radius:8px;background:#fffdfa;display:flex;align-items:center;justify-content:center;padding:6px;cursor:pointer;color:var(--muted);font-size:11px;text-align:center;transition:.15s}
+.img-edit-row .dropzone:hover{border-color:var(--accent);color:var(--accent)}
+.img-edit-row .dropzone.over{background:var(--accent-soft);border-color:var(--accent)}
+.img-edit-row .dropzone.has-img{border-style:solid;padding:0;overflow:hidden}
+.img-edit-row .dropzone img{width:100%;height:92px;object-fit:cover;display:block}
 .add-img{margin-top:8px;font-size:12px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
- <h1>美学卡片 · flomo 式网状联想</h1>
+ <h1>美学风格词典 <span class="h1-en">Aesthetics Lexicon</span></h1>
  <p>94 张知识卡片 · 点击卡片看「相关笔记」· 关系图可拖动节点 · 随机漫步会把你带到相邻概念</p>
 </header>
 <div class="toolbar">
@@ -120,7 +126,7 @@ button.edit-on{background:var(--accent);border-color:var(--accent);color:#fff}
  <input type="file" id="fileImport" accept=".json,application/json" style="display:none">
  <span class="count" id="count"></span>
 </div>
-<div id="editBanner">✎ 纠错模式已开启：点任意卡片，在右侧改图片（可加多张、点「📋 粘贴」或按 Ctrl+V 贴链接）后保存。改动先存在本机；点「导出修正」生成 overrides.json，放进本目录或提交 GitHub，所有人打开都会自动应用。</div>
+<div id="editBanner">✎ 纠错模式已开启：点任意卡片，在右侧图片框按 Ctrl+V 直接粘贴图片本身（或点框选本地图片 / 拖入），也可填链接；可加多张。改动先存在本机；点「导出修正」生成 overrides.json，放进本目录或提交 GitHub，所有人打开都会自动应用。</div>
 <div class="main">
  <section class="left">
   <div id="cardsView" class="view on"><div class="cards" id="cards"></div></div>
@@ -154,6 +160,7 @@ const ORIG = Object.fromEntries(entries.map(e=>[e.name, Object.fromEntries(EDIT_
 for(const e of entries){ e.imgs=[{url:e.img, desc:e.img_desc||''}]; }
 
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function imSrc(im){ return (im && (im.data || im.url)) || ''; }
 function visible(){
   const q=state.q.trim().toLowerCase();
   return entries.filter(e=>{
@@ -170,7 +177,7 @@ function renderCards(){
     <article class="card ${state.selected===e.name?'sel':''}" data-name="${esc(e.name)}">
       <h3>${esc(e.name)} <small>${esc(e.cn)}</small></h3>
       <div class="chips"><span class="chip fam" style="--fc:${colors[e.family]||'#888'}">${esc(e.family)}</span>${(e.tags2||[]).slice(0,3).map(t=>`<span class="chip" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>
-      <div class="thumb-wrap"><img class="thumb" src="${esc((e.imgs&&e.imgs[0]&&e.imgs[0].url)||e.img)}" alt="${esc(e.img_desc)}" loading="lazy">${(e.imgs&&e.imgs.length>1)?'<span class="img-badge">图 '+e.imgs.length+' 张</span>':''}</div>
+      <div class="thumb-wrap"><img class="thumb" src="${esc(imSrc(e.imgs&&e.imgs[0])||e.img)}" alt="${esc(e.img_desc)}" loading="lazy">${(e.imgs&&e.imgs.length>1)?'<span class="img-badge">图 '+e.imgs.length+' 张</span>':''}</div>
       <p class="def">${esc(e.def)}</p>
       <div class="meta">${esc(e.era||'')} · ${esc(e.mood||'')} · 关联 ${e.related.length}</div>
     </article>`).join('') || '<p class="hint">没有匹配的卡片。</p>';
@@ -231,7 +238,7 @@ function select(name){
     <h2>${esc(e.name)} <span style="font-size:12px;color:var(--muted);font-weight:400">${esc(e.cn)}</span></h2>
     <div class="sub">${esc(e.family)} · ${esc(e.era||'')} · ${esc(e.mood||'')}</div>
     <div class="carousel-main">
-      <img id="carImg" src="${esc(e.img)}" alt="${esc(e.img_desc)}">
+      <img id="carImg" src="${esc(imSrc(e.imgs&&e.imgs[0])||e.img)}" alt="${esc(e.img_desc)}">
       <button class="carousel-btn prev" id="carPrev" aria-label="上一张">‹</button>
       <button class="carousel-btn next" id="carNext" aria-label="下一张">›</button>
       <div class="carousel-cap" id="carCap"></div>
@@ -289,13 +296,13 @@ function applyOverrides(){
     for(const k of EDIT_KEYS) e[k]=(o[k]!=null && o[k]!=='') ? o[k] : base[k];
     let imgs;
     if(Array.isArray(o.imgs) && o.imgs.length){
-      imgs=o.imgs.filter(x=>x&&x.url).map(x=>({url:x.url,desc:x.desc||''}));
+      imgs=o.imgs.filter(x=>x&&(x.url||x.data)).map(x=>({url:x.url||'',desc:x.desc||'',data:x.data||''}));
     }else if(o.img){
-      imgs=[{url:o.img,desc:o.img_desc||''}];
+      imgs=[{url:o.img,desc:o.img_desc||'',data:(String(o.img).indexOf('data:')===0?o.img:'')}];
     }else{
-      imgs=[{url:e.img,desc:e.img_desc||''}];
+      imgs=[{url:e.img,desc:e.img_desc||'',data:''}];
     }
-    e.imgs=imgs.length?imgs:[{url:base.img,desc:base.img_desc||''}];
+    e.imgs=imgs.length?imgs:[{url:base.img,desc:base.img_desc||'',data:''}];
   }
 }
 function loadLocalOverrides(){
@@ -349,16 +356,32 @@ async function pasteInto(input){
     toast('无法读取剪贴板，请点输入框后直接按 Ctrl+V');
   }
 }
+function fileToDataURL(file, cb){ const r=new FileReader(); r.onload=()=>cb(r.result); r.readAsDataURL(file); }
+function readClipboardImage(ev){
+  const items=(ev.clipboardData && ev.clipboardData.items) || [];
+  for(const it of items){ if(it.type && it.type.indexOf('image/')===0){ return it.getAsFile(); } }
+  return null;
+}
 document.addEventListener('paste', ev=>{
   if(!editMode || !state.selected) return;
+  const list=document.getElementById('imgEditorList');
+  if(!list) return;
+  const f=readClipboardImage(ev);
+  if(f){
+    const row=(ev.target && ev.target.closest && ev.target.closest('.img-edit-row')) || list.firstElementChild;
+    if(!row) return;
+    ev.preventDefault();
+    fileToDataURL(f, d=>{ if(row._setImg) row._setImg(d); toast('已粘贴图片本身'); });
+    return;
+  }
   const tag=(ev.target && ev.target.tagName) || '';
-  if(tag==='INPUT' || tag==='TEXTAREA') return;   // 输入框内交给原生粘贴
-  const first=document.querySelector('#imgEditorList .edUrl');
+  if(tag==='INPUT' || tag==='TEXTAREA') return;
+  const first=list.querySelector('.edUrl');
   if(!first) return;
   ev.preventDefault();
   const txt=(ev.clipboardData && ev.clipboardData.getData('text')) || '';
   const url=pickUrl(txt);
-  if(url){ first.value=url; first.focus(); toast('已粘贴到第一张图片'); }
+  if(url){ first.value=url; first.focus(); toast('已粘贴图片链接'); }
 });
 
 /* ===== 轮播 ===== */
@@ -366,7 +389,7 @@ function renderCarousel(e){
   const imgs=(e.imgs&&e.imgs.length)?e.imgs:[{url:e.img,desc:e.img_desc||''}];
   if(carIndex>=imgs.length) carIndex=0;
   const cur=imgs[carIndex];
-  const img=document.getElementById('carImg'); if(img){ img.src=cur.url; img.alt=cur.desc||''; }
+  const img=document.getElementById('carImg'); if(img){ img.src=cur.data||cur.url; img.alt=cur.desc||''; }
   const cap=document.getElementById('carCap'); if(cap) cap.textContent=cur.desc||'';
   const cnt=document.getElementById('carCount'); if(cnt) cnt.textContent=imgs.length>1?(carIndex+1)+' / '+imgs.length:'';
   const multi=imgs.length>1;
@@ -383,29 +406,66 @@ function initCarousel(e){ carIndex=0; renderCarousel(e); }
 
 /* ===== 多图编辑 ===== */
 function imgEditRow(i, im){
-  return '<div class="img-edit-row" data-idx="'+i+'">'
-    + '<div class="img-no">图片 '+(i+1)+'</div>'
-    + '<div class="erow"><input class="edUrl" value="'+esc(im.url||'')+'" placeholder="图片直链 URL（Ctrl+V 粘贴）">'
-    + '<button class="paste-btn" type="button" title="从剪贴板粘贴图片链接">📋 粘贴</button>'
+  const src=im.data||im.url||'';
+  return '<div class="img-edit-row" data-idx="'+i+'" data-imdata="'+esc(im.data||'')+'">'
+    + '<div class="img-no">图片 '+(i+1)+(im.data?' <span class="diff-tag">已粘贴图片</span>':'')+'</div>'
+    + '<div class="dropzone'+(src?' has-img':'')+'" title="点此选择本地图片，或按 Ctrl+V 粘贴图片，或拖入图片文件">'
+      + (src?'<img src="'+esc(src)+'" alt="预览">':'<span class="dz-tip">📷 点击选择 / 拖入 / Ctrl+V 粘贴图片本身</span>')
+    + '</div>'
+    + '<input type="file" accept="image/*" style="display:none" class="dzFile">'
+    + '<div class="erow"><input class="edUrl" value="'+esc(im.url||'')+'" placeholder="或粘贴图片链接 URL">'
+    + '<button class="paste-btn" type="button" title="从剪贴板粘贴图片链接">📋 粘贴链接</button>'
     + '<button class="del-btn" type="button" title="删除这张">✕</button></div>'
     + '<input class="edDesc" value="'+esc(im.desc||'')+'" placeholder="图片说明 / 来源（可选）"></div>';
 }
 function bindImgRows(panel){
+  panel.querySelectorAll('.img-edit-row').forEach(row=>{
+    if(row._bound) return;
+    row._bound=true;
+    row._dataUrl = row.dataset.imdata || '';
+    const dz=row.querySelector('.dropzone'), fin=row.querySelector('.dzFile');
+    const setImg=(d)=>{
+      row._dataUrl=d||''; row.dataset.imdata=d||'';
+      if(dz){
+        dz.classList.toggle('has-img',!!d);
+        dz.innerHTML = d ? '<img src="'+esc(d)+'" alt="预览">' : '<span class="dz-tip">📷 点击选择 / 拖入 / Ctrl+V 粘贴图片本身</span>';
+      }
+      const no=row.querySelector('.img-no');
+      if(no) no.innerHTML='图片 '+(Number(row.dataset.idx)+1)+(d?' <span class="diff-tag">已粘贴图片</span>':'');
+    };
+    row._setImg=setImg;
+    if(dz){
+      dz.onclick=()=>{ if(fin) fin.click(); };
+      dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('over'); });
+      dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+      dz.addEventListener('drop',e=>{
+        e.preventDefault(); dz.classList.remove('over');
+        const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if(f && f.type && f.type.indexOf('image/')===0) fileToDataURL(f,d=>{ setImg(d); toast('已拖入图片本身'); });
+        else toast('请拖入图片文件');
+      });
+    }
+    if(fin) fin.onchange=ev=>{
+      const f=ev.target.files && ev.target.files[0];
+      if(f) fileToDataURL(f,d=>{ setImg(d); toast('已载入本地图片'); });
+    };
+  });
   panel.querySelectorAll('.paste-btn').forEach(b=>b.onclick=()=>pasteInto(b.closest('.img-edit-row').querySelector('.edUrl')));
   panel.querySelectorAll('.del-btn').forEach(b=>b.onclick=()=>{
     const list=document.getElementById('imgEditorList');
     if(list.children.length<=1){ toast('至少保留一张图片'); return; }
     b.closest('.img-edit-row').remove();
-    [...list.children].forEach((r,i)=>{ r.dataset.idx=i; r.querySelector('.img-no').textContent='图片 '+(i+1); });
+    [...list.children].forEach((r,i)=>{ r.dataset.idx=i; r.querySelector('.img-no').innerHTML='图片 '+(i+1)+(r._dataUrl?' <span class="diff-tag">已粘贴图片</span>':''); });
   });
 }
 function saveOne(name){
   const o={}, list=document.getElementById('imgEditorList'), imgs=[];
   if(list) [...list.children].forEach(r=>{
     const url=r.querySelector('.edUrl').value.trim(), desc=r.querySelector('.edDesc').value.trim();
-    if(url) imgs.push({url,desc});
+    const data=r._dataUrl||r.dataset.imdata||'';
+    if(url||data) imgs.push({url,desc,data});
   });
-  if(imgs.length){ o.imgs=imgs; o.img=imgs[0].url; o.img_desc=imgs[0].desc; }
+  if(imgs.length){ o.imgs=imgs; o.img=imgs[0].data||imgs[0].url; o.img_desc=imgs[0].desc; }
   const def=document.getElementById('edDef').value.trim();
   if(def) o.def=def;
   if(Object.keys(o).length) overrides[name]=o; else delete overrides[name];
@@ -428,7 +488,7 @@ function renderEditPanel(e){
   panel.className='edit-panel';
   panel.innerHTML=''
     + '<div class="label" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:14px">✎ 纠错模式 · 修改这张卡片</div>'
-    + '<div class="label">代表图片（可多张，详情里点箭头/圆点切换）</div>'
+    + '<div class="label">代表图片（Ctrl+V 粘贴图片本身 / 点框选本地图片 / 拖入 / 填链接）</div>'
     + '<div id="imgEditorList">'+imgs.map((im,i)=>imgEditRow(i,im)).join('')+'</div>'
     + '<button id="edAddImg" class="add-img">＋ 添加一张图片</button>'
     + '<div class="label" style="margin-top:12px">一句话定义</div>'
